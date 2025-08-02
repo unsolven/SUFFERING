@@ -1,0 +1,412 @@
+--[[
+	ModernUI Library (Loadstring-Friendly)
+	Recriação moderna, responsiva e autocontida para uso em hubs de script.
+
+	- Totalmente autocontido para `loadstring(game:HttpGet(...))()`.
+	- Responsivo para mobile e desktop.
+	- API limpa e encadeável.
+	- Tema Roxo Escuro como padrão, mas customizável.
+]]
+
+-- A biblioteca principal que será retornada no final.
+local Library = {}
+
+--==============================================================================
+-- DETECÇÃO DE AMBIENTE E SERVIÇOS
+--==============================================================================
+
+-- Funções comuns em ambientes de exploit, com fallbacks para o Studio.
+local cloneref = cloneref or function(a) return a end
+local gethui = gethui or get_hidden_gui or function() return game:GetService("CoreGui") end
+
+-- Wrapper de serviços para usar `cloneref` de forma consistente.
+local Services = setmetatable({}, {
+	__index = function(_, serviceName)
+		local success, service = pcall(game.GetService, game, serviceName)
+		if success then
+			return cloneref(service)
+		end
+		return nil
+	end,
+})
+
+-- Serviços essenciais
+local TweenService = Services.TweenService
+local UserInputService = Services.UserInputService
+local RunService = Services.RunService
+local TextService = Services.TextService
+local Players = Services.Players
+local Camera = Services.Workspace and Services.Workspace.CurrentCamera
+
+--==============================================================================
+-- CONFIGURAÇÃO PADRÃO (Pode ser sobrescrita em Library.CreateWindow)
+--==============================================================================
+local DefaultConfig = {
+	Title = "Modern UI",
+	Company = "Gemini",
+	ToggleKey = Enum.KeyCode.RightShift,
+
+	Theme = {
+		Background = Color3.fromHex("120E1A"),
+		Surface = Color3.fromHex("1E192B"),
+		Primary = Color3.fromHex("9B59B6"),
+		Accent = Color3.fromHex("8E44AD"),
+		Text = Color3.fromHex("EAEAEA"),
+		TextSecondary = Color3.fromHex("A0A0A0"),
+		Stroke = Color3.fromHex("322A4A"),
+	},
+
+	Font = {
+		Default = Enum.Font.Gotham,
+		Bold = Enum.Font.GothamBold,
+	},
+
+	Animation = {
+		Speed = 0.2,
+		Easing = Enum.EasingStyle.Sine,
+	},
+
+	BlurOnOpen = true,
+	FOVOnOpen = true,
+}
+
+--==============================================================================
+-- MÓDULOS INTERNOS (NÃO EXPOSTOS)
+--==============================================================================
+local Styler, Dragger, ComponentFactory
+
+do -- Bloco para encapsular módulos internos
+	-- Styler: Aplica estilos de forma consistente
+	Styler = {}
+	function Styler.applyCorner(radius)
+		return function(instance)
+			local corner = Instance.new("UICorner")
+			corner.CornerRadius = UDim.new(0, radius or 6)
+			corner.Parent = instance
+		end
+	end
+	function Styler.applyStroke(thickness, color, theme)
+		return function(instance)
+			local stroke = Instance.new("UIStroke")
+			stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+			stroke.Thickness = thickness or 1
+			stroke.Color = color or theme.Stroke
+			stroke.Parent = instance
+		end
+	end
+	function Styler.applyText(props, theme, fontTheme)
+		return function(label)
+			label.Font = props.Font or fontTheme.Default
+			label.TextColor3 = props.Color or theme.Text
+			label.TextSize = props.Size or 14
+			label.TextXAlignment = props.Align or Enum.TextXAlignment.Left
+			label.Text = props.Text or ""
+			label.RichText = true
+		end
+	end
+
+	-- Dragger: Lógica para arrastar a janela
+	Dragger = {}
+	function Dragger.enable(frame)
+		local dragging, inputChangedConnection
+		frame.InputBegan:Connect(function(input)
+			if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+				dragging = true
+				local startPos = input.Position
+				local frameStartPos = frame.Position
+				inputChangedConnection = UserInputService.InputChanged:Connect(function(changedInput)
+					if (changedInput.UserInputType == Enum.UserInputType.MouseMovement or changedInput.UserInputType == Enum.UserInputType.Touch) and dragging then
+						local delta = changedInput.Position - startPos
+						frame.Position = UDim2.new(frameStartPos.X.Scale, frameStartPos.X.Offset + delta.X, frameStartPos.Y.Scale, frameStartPos.Y.Offset + delta.Y)
+					end
+				end)
+			end
+		end)
+		UserInputService.InputEnded:Connect(function(input)
+			if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+				dragging = false
+				if inputChangedConnection then
+					inputChangedConnection:Disconnect()
+					inputChangedConnection = nil
+				end
+			end
+		end)
+	end
+	
+	-- ComponentFactory: Cria os componentes da UI (botões, toggles, etc.)
+	ComponentFactory = {}
+	
+	function ComponentFactory.newButton(parent, config, text, callback)
+		local theme, fontTheme, animTheme = config.Theme, config.Font, config.Animation
+		local button = Instance.new("TextButton")
+		button.Name = "Button"
+		button.Size = UDim2.new(1, 0, 0, 35)
+		button.BackgroundColor3 = theme.Surface
+		button.AutoButtonColor = false
+		Styler.applyCorner(6)(button)
+		Styler.applyStroke(1, nil, theme)(button)
+		Styler.applyText({ Text = text, Font = fontTheme.Bold, Align = Enum.TextXAlignment.Center }, theme, fontTheme)(button)
+		button.Parent = parent
+
+		local tweenInfo = TweenInfo.new(animTheme.Speed, animTheme.Easing)
+		button.MouseEnter:Connect(function() TweenService:Create(button, tweenInfo, { BackgroundColor3 = theme.Accent }):Play() end)
+		button.MouseLeave:Connect(function() TweenService:Create(button, tweenInfo, { BackgroundColor3 = theme.Surface }):Play() end)
+		button.MouseButton1Click:Connect(function() task.spawn(callback) end)
+		return button
+	end
+	
+	function ComponentFactory.newToggle(parent, config, text, defaultValue, callback)
+		local theme, fontTheme, animTheme = config.Theme, config.Font, config.Animation
+		local toggled = defaultValue or false
+
+		local frame = Instance.new("Frame")
+		frame.Name = "Toggle"
+		frame.Size = UDim2.new(1, 0, 0, 25)
+		frame.BackgroundTransparency = 1
+		frame.Parent = parent
+
+		local layout = Instance.new("UIListLayout", frame)
+		layout.FillDirection = Enum.FillDirection.Horizontal
+		layout.VerticalAlignment = Enum.VerticalAlignment.Center
+		layout.Padding = UDim.new(0, 10)
+		
+		local checkbox = Instance.new("Frame", frame)
+		checkbox.Size = UDim2.new(0, 20, 0, 20)
+		checkbox.BackgroundColor3 = theme.Surface
+		Styler.applyCorner(4)(checkbox)
+		Styler.applyStroke(1, nil, theme)(checkbox)
+		
+		local checkmark = Instance.new("Frame", checkbox)
+		checkmark.Size = UDim2.fromScale(0.7, 0.7)
+		checkmark.AnchorPoint = Vector2.new(0.5, 0.5)
+		checkmark.Position = UDim2.fromScale(0.5, 0.5)
+		checkmark.BackgroundColor3 = theme.Primary
+		checkmark.BackgroundTransparency = toggled and 0 or 1
+		Styler.applyCorner(4)(checkmark)
+
+		local label = Instance.new("TextLabel", frame)
+		label.Size = UDim2.new(1, -30, 1, 0)
+		label.BackgroundTransparency = 1
+		Styler.applyText({Text = text}, theme, fontTheme)(label)
+
+		local button = Instance.new("TextButton", frame)
+		button.Size = UDim2.new(1,0,1,0)
+		button.BackgroundTransparency = 1
+		button.Text = ""
+		
+		local tweenInfo = TweenInfo.new(animTheme.Speed / 2, animTheme.Easing)
+		button.MouseButton1Click:Connect(function()
+			toggled = not toggled
+			TweenService:Create(checkmark, tweenInfo, { BackgroundTransparency = toggled and 0 or 1 }):Play()
+			task.spawn(callback, toggled)
+		end)
+		
+		task.spawn(callback, toggled)
+		return {Frame = frame, GetValue = function() return toggled end}
+	end
+    
+    function ComponentFactory.newLabel(parent, config, text)
+        local theme, fontTheme = config.Theme, config.Font
+		local label = Instance.new("TextLabel")
+		label.Name = "Label"
+		label.Size = UDim2.new(1, 0, 0, 0) -- Altura automática
+		label.AutomaticSize = Enum.AutomaticSize.Y
+		label.BackgroundTransparency = 1
+		Styler.applyText({
+			Text = text,
+			Size = 14,
+			Color = theme.TextSecondary,
+		}, theme, fontTheme)(label)
+		label.TextWrapped = true
+		label.Parent = parent
+		return label
+	end
+
+end
+
+--==============================================================================
+-- API PÚBLICA (FUNÇÕES EXPOSTAS)
+--==============================================================================
+
+function Library.CreateWindow(userConfig)
+	-- Mescla a configuração do usuário com a padrão
+	local config = {}
+	for k, v in pairs(DefaultConfig) do
+		config[k] = v
+	end
+	if userConfig then
+		for k, v in pairs(userConfig) do
+			if type(v) == "table" and type(config[k]) == "table" then
+				for k2, v2 in pairs(v) do config[k][k2] = v2 end
+			else
+				config[k] = v
+			end
+		end
+	end
+
+	-- Cria a UI principal
+	local screenGui = Instance.new("ScreenGui")
+	screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+	screenGui.ResetOnSpawn = false
+
+	local mainFrame = Instance.new("Frame", screenGui)
+	mainFrame.Name = "MainFrame"
+	mainFrame.AnchorPoint = Vector2.new(0.5, 0.5)
+	mainFrame.Position = UDim2.fromScale(0.5, 0.5)
+	mainFrame.Size = UDim2.fromScale(0.4, 0.6)
+	mainFrame.BackgroundColor3 = config.Theme.Background
+	mainFrame.Visible = false
+	mainFrame.ClipsDescendants = true
+	Styler.applyCorner(8)(mainFrame)
+	Styler.applyStroke(1, nil, config.Theme)(mainFrame)
+
+	local aspectRatio = Instance.new("UIAspectRatioConstraint", mainFrame)
+	aspectRatio.AspectRatio = 4 / 3
+	aspectRatio.DominantAxis = Enum.DominantAxis.Height
+	
+	local blurEffect = Camera and Instance.new("BlurEffect", Camera) or nil
+	if blurEffect then blurEffect.Size = 0; blurEffect.Enabled = config.BlurOnOpen end
+
+	Dragger.enable(mainFrame)
+
+	-- Layouts e preenchimento
+	local mainLayout = Instance.new("UIListLayout", mainFrame)
+	mainLayout.FillDirection = Enum.FillDirection.Vertical
+	mainLayout.Padding = UDim.new(0, 10)
+	local mainPadding = Instance.new("UIPadding", mainFrame)
+	mainPadding.PaddingTop = UDim.new(0, 10)
+	mainPadding.PaddingLeft = UDim.new(0, 10)
+	mainPadding.PaddingRight = UDim.new(0, 10)
+	mainPadding.PaddingBottom = UDim.new(0, 10)
+
+	-- Header
+	local header = Instance.new("Frame", mainFrame)
+	header.Name = "Header"
+	header.Size = UDim2.new(1, 0, 0, 30)
+	header.BackgroundTransparency = 1
+	local headerLayout = Instance.new("UIListLayout", header)
+	headerLayout.FillDirection = Enum.FillDirection.Horizontal
+	headerLayout.VerticalAlignment = Enum.VerticalAlignment.Center
+	local title = Instance.new("TextLabel", header)
+	title.Name = "Title"
+	title.AutomaticSize = Enum.AutomaticSize.X
+	title.Size = UDim2.new(0, 0, 1, 0)
+	Styler.applyText({
+		Text = string.format("<font color='#%s'>%s</font> // %s", config.Theme.Primary:ToHex(), config.Company, config.Title),
+		Font = config.Font.Bold,
+		Size = 16,
+	}, config.Theme, config.Font)(title)
+
+	-- Corpo (Abas e Páginas)
+	local bodyContainer = Instance.new("Frame", mainFrame)
+	bodyContainer.Name = "BodyContainer"
+	bodyContainer.Size = UDim2.new(1, 0, 1, -40)
+	bodyContainer.BackgroundTransparency = 1
+	local bodyLayout = Instance.new("UIListLayout", bodyContainer)
+	bodyLayout.FillDirection = Enum.FillDirection.Horizontal
+	bodyLayout.Padding = UDim.new(0, 10)
+
+	local tabContainer = Instance.new("Frame", bodyContainer)
+	tabContainer.Name = "TabContainer"
+	tabContainer.Size = UDim2.new(0.3, 0, 1, 0)
+	tabContainer.BackgroundColor3 = config.Theme.Surface
+	Styler.applyCorner(6)(tabContainer)
+	local tabLayout = Instance.new("UIListLayout", tabContainer)
+	tabLayout.Padding = UDim.new(0, 5)
+	local tabPadding = Instance.new("UIPadding", tabContainer)
+	tabPadding.PaddingTop = UDim.new(0, 5)
+
+	local pageContainer = Instance.new("Frame", bodyContainer)
+	pageContainer.Name = "PageContainer"
+	pageContainer.Size = UDim2.new(0.7, -10, 1, 0)
+	pageContainer.BackgroundColor3 = config.Theme.Surface
+	pageContainer.ClipsDescendants = true
+	Styler.applyCorner(6)(pageContainer)
+
+	-- Objeto da janela
+	local Window = {}
+	local tabs = {}
+	local pages = {}
+	local activeTab = nil
+	local firstTab = true
+	
+	local tweenInfo = TweenInfo.new(config.Animation.Speed, config.Animation.Easing)
+	
+	function Window:Toggle(state)
+		local visible = (state == nil) and not mainFrame.Visible or state
+		mainFrame.Visible = visible
+
+		if blurEffect and config.BlurOnOpen then
+			TweenService:Create(blurEffect, tweenInfo, { Size = visible and 16 or 0 }):Play()
+		end
+		
+		if Camera and config.FOVOnOpen then
+			Window._originalFov = Window._originalFov or Camera.FieldOfView
+			TweenService:Create(Camera, tweenInfo, { FieldOfView = visible and Window._originalFov - 10 or Window._originalFov }):Play()
+		end
+	end
+
+	function Window:AddTab(tabTitle)
+		local tabButton = Instance.new("TextButton", tabContainer)
+		tabButton.Name = tabTitle
+		tabButton.Size = UDim2.new(1, -10, 0, 30)
+		tabButton.AnchorPoint = Vector2.new(0.5, 0)
+		tabButton.Position = UDim2.new(0.5, 0, 0, 0)
+		tabButton.AutoButtonColor = false
+		tabButton.BackgroundTransparency = 1
+		Styler.applyText({ Text = tabTitle, Font = config.Font.Bold, Color = config.Theme.TextSecondary, Size = 15, Align = Enum.TextXAlignment.Center }, config.Theme, config.Font)(tabButton)
+
+		local page = Instance.new("ScrollingFrame", pageContainer)
+		page.Name = tabTitle .. "Page"
+		page.Size = UDim2.new(1, 0, 1, 0)
+		page.BackgroundTransparency = 1
+		page.BorderSizePixel = 0
+		page.Visible = false
+		page.ScrollBarImageColor3 = config.Theme.Primary
+		page.ScrollBarThickness = 4
+		page.AutomaticCanvasSize = Enum.AutomaticSize.Y
+		local pageLayout = Instance.new("UIListLayout", page)
+		pageLayout.Padding = UDim.new(0, 8)
+		local pagePadding = Instance.new("UIPadding", page)
+		pagePadding.PaddingTop = UDim.new(0, 8); pagePadding.PaddingLeft = UDim.new(0, 8); pagePadding.PaddingRight = UDim.new(0, 8); pagePadding.PaddingBottom = UDim.new(0, 8)
+
+		tabButton.MouseButton1Click:Connect(function()
+			if activeTab == tabButton then return end
+			if activeTab then
+				pages[activeTab].Visible = false
+				TweenService:Create(activeTab, tweenInfo, { TextColor3 = config.Theme.TextSecondary }):Play()
+			end
+			page.Visible = true
+			activeTab = tabButton
+			TweenService:Create(tabButton, tweenInfo, { TextColor3 = config.Theme.Primary }):Play()
+		end)
+
+		if firstTab then
+			firstTab = false
+			page.Visible = true
+			activeTab = tabButton
+			tabButton.TextColor3 = config.Theme.Primary
+		end
+
+		table.insert(tabs, tabButton)
+		pages[tabButton] = page
+		
+		-- Objeto Tab para adicionar componentes
+		local Tab = {}
+		function Tab:AddButton(buttonText, callback) return ComponentFactory.newButton(page, config, buttonText, callback) end
+		function Tab:AddToggle(toggleText, defaultValue, callback) return ComponentFactory.newToggle(page, config, toggleText, defaultValue, callback) end
+        function Tab:AddLabel(labelText) return ComponentFactory.newLabel(page, config, labelText) end
+		return Tab
+	end
+
+	UserInputService.InputBegan:Connect(function(input, gameProcessed)
+		if not gameProcessed and input.KeyCode == config.ToggleKey then
+			Window:Toggle()
+		end
+	end)
+
+	screenGui.Parent = gethui() -- Adiciona a UI ao CoreGui (ou seu equivalente)
+	return Window
+end
+
+return Library
