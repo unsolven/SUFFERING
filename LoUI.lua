@@ -1,5 +1,25 @@
--- Instances: 88 | Scripts: 0 | Modules: 1
+-- Instances: 104 | Scripts: 0 | Modules: 1
 local LoUI = {};
+
+-- Adicionando UIShadow e UIStroke como instâncias reutilizáveis para melhor organização
+local function createShadow()
+	local shadow = Instance.new("UIShadow")
+	shadow.ShadowColor = Color3.fromRGB(0, 0, 0)
+	shadow.ShadowTransparency = 0.6
+	shadow.Size = 4
+	shadow.Offset = Vector2.new(0, 2)
+	return shadow
+end
+
+local function createHoverStroke()
+	local stroke = Instance.new("UIStroke")
+	stroke.Color = Color3.fromRGB(220, 160, 190) -- Cor de destaque
+	stroke.Thickness = 1.5
+	stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+	stroke.Enabled = false -- Desabilitado por padrão
+	return stroke
+end
+
 
 -- LoUI
 LoUI["1"] = Instance.new("ScreenGui", game:GetService("CoreGui"));
@@ -8,29 +28,16 @@ LoUI["1"]["ScreenInsets"] = Enum.ScreenInsets.DeviceSafeInsets;
 LoUI["1"]["Name"] = [[LoUI]];
 LoUI["1"]["ZIndexBehavior"] = Enum.ZIndexBehavior.Sibling;
 
--- LoUI.TopBar Shadow
-LoUI["s1"] = Instance.new("Frame", LoUI["1"]);
-LoUI["s1"]["BorderSizePixel"] = 0;
-LoUI["s1"]["BackgroundColor3"] = Color3.fromRGB(15, 0, 15); -- Darker shade for shadow
-LoUI["s1"]["Size"] = UDim2.new(0.5404488444328308, 0, 0.1739015281200409, 0);
-LoUI["s1"]["Position"] = UDim2.new(0.23000000417232513 + 0.005, 0, -0.1899999976158142 + 0.005, 0); -- Slightly offset
-LoUI["s1"]["ZIndex"] = 0; -- Behind the actual UI
-LoUI["s1"]["Name"] = [[TopBarShadow]];
-
--- LoUI.TopBar Shadow Corner
-LoUI["s2"] = Instance.new("UICorner", LoUI["s1"]);
-LoUI["s2"]["CornerRadius"] = UDim.new(0.10000000149011612, 0);
-
 -- LoUI.TopBar
 LoUI["2"] = Instance.new("Frame", LoUI["1"]);
 LoUI["2"]["BorderSizePixel"] = 0;
-LoUI["2"]["BackgroundColor3"] = Color3.fromRGB(21, 0, 21); -- Changed main color
+LoUI["2"]["BackgroundColor3"] = Color3.fromRGB(21, 0, 21); -- Cor principal alterada
 LoUI["2"]["LayoutOrder"] = 2;
 LoUI["2"]["Size"] = UDim2.new(0.5404488444328308, 0, 0.1739015281200409, 0);
 LoUI["2"]["BorderColor3"] = Color3.fromRGB(0, 0, 0);
 LoUI["2"]["Position"] = UDim2.new(0.23000000417232513, 0, -0.1899999976158142, 0);
 LoUI["2"]["Name"] = [[TopBar]];
-LoUI["2"]["ZIndex"] = 1;
+createShadow().Parent = LoUI["2"]; -- Adicionado sombreamento
 
 -- LoUI.TopBar.UICorner
 LoUI["3"] = Instance.new("UICorner", LoUI["2"]);
@@ -42,7 +49,7 @@ LoUI["4"]["Active"] = true;
 LoUI["4"]["ScrollingDirection"] = Enum.ScrollingDirection.Y;
 LoUI["4"]["BorderSizePixel"] = 0;
 LoUI["4"]["CanvasSize"] = UDim2.new(0.10000000149011612, 0, 0, 0);
-LoUI["4"]["BackgroundColor3"] = Color3.fromRGB(21, 0, 21); -- Changed main color
+LoUI["4"]["BackgroundColor3"] = Color3.fromRGB(21, 0, 21); -- Cor principal alterada
 LoUI["4"]["AutomaticCanvasSize"] = Enum.AutomaticSize.X;
 LoUI["4"]["BackgroundTransparency"] = 1;
 LoUI["4"]["Size"] = UDim2.new(0.915977954864502, 0, 0.5196850299835205, 0);
@@ -65,7 +72,7 @@ LoUI["6"]["PaddingLeft"] = UDim.new(0.014999999664723873, 0);
 -- LoUI.TopBar.TopBar
 LoUI["a"] = Instance.new("Frame", LoUI["2"]);
 LoUI["a"]["BorderSizePixel"] = 0;
-LoUI["a"]["BackgroundColor3"] = Color3.fromRGB(21, 0, 21); -- Changed main color
+LoUI["a"]["BackgroundColor3"] = Color3.fromRGB(21, 0, 21); -- Cor principal alterada
 LoUI["a"]["LayoutOrder"] = 2;
 LoUI["a"]["Size"] = UDim2.new(0.9983566999435425, 0, 0.05511785298585892, 0);
 LoUI["a"]["BorderColor3"] = Color3.fromRGB(0, 0, 0);
@@ -81,28 +88,16 @@ LoUI["c"]["Size"] = UDim2.new(0.9983566999435425, 0, 0.4645672142505646, 0);
 LoUI["c"]["BorderColor3"] = Color3.fromRGB(0, 0, 0);
 LoUI["c"]["Name"] = [[ProfileMenu]];
 
--- LoUI.TopBar.ProfileMenu.PlayerProfile Shadow
-LoUI["sd"] = Instance.new("Frame", LoUI["c"]);
-LoUI["sd"]["BorderSizePixel"] = 0;
-LoUI["sd"]["BackgroundColor3"] = Color3.fromRGB(15, 0, 15);
-LoUI["sd"]["Size"] = UDim2.new(0.23481373488903046, 0, 0.682426393032074, 0);
-LoUI["sd"]["Position"] = UDim2.new(0.015024710446596146 + 0.002, 0, 0.18421050906181335 + 0.002, 0);
-LoUI["sd"]["ZIndex"] = 0;
-
--- LoUI.TopBar.ProfileMenu.PlayerProfile Shadow Corner
-LoUI["se"] = Instance.new("UICorner", LoUI["sd"]);
-LoUI["se"]["CornerRadius"] = UDim.new(0.30000001192092896, 0);
-
 -- LoUI.TopBar.ProfileMenu.PlayerProfile
 LoUI["d"] = Instance.new("ImageButton", LoUI["c"]);
 LoUI["d"]["BorderSizePixel"] = 0;
 LoUI["d"]["AutoButtonColor"] = false;
-LoUI["d"]["BackgroundColor3"] = Color3.fromRGB(21, 0, 21); -- Changed main color
+LoUI["d"]["BackgroundColor3"] = Color3.fromRGB(21, 0, 21); -- Cor principal alterada
 LoUI["d"]["Size"] = UDim2.new(0.23481373488903046, 0, 0.682426393032074, 0);
 LoUI["d"]["Name"] = [[PlayerProfile]];
 LoUI["d"]["BorderColor3"] = Color3.fromRGB(0, 0, 0);
 LoUI["d"]["Position"] = UDim2.new(0.015024710446596146, 0, 0.18421050906181335, 0);
-LoUI["d"]["ZIndex"] = 1;
+createShadow().Parent = LoUI["d"]; -- Adicionado sombreamento
 
 -- LoUI.TopBar.ProfileMenu.PlayerProfile.UICorner
 LoUI["e"] = Instance.new("UICorner", LoUI["d"]);
@@ -111,7 +106,7 @@ LoUI["e"]["CornerRadius"] = UDim.new(0.30000001192092896, 0);
 -- LoUI.TopBar.ProfileMenu.PlayerProfile.ImageLabel
 LoUI["10"] = Instance.new("ImageLabel", LoUI["d"]);
 LoUI["10"]["BorderSizePixel"] = 0;
-LoUI["10"]["BackgroundColor3"] = Color3.fromRGB(21, 0, 21); -- Changed main color
+LoUI["10"]["BackgroundColor3"] = Color3.fromRGB(21, 0, 21); -- Cor principal alterada
 LoUI["10"]["Size"] = UDim2.new(0.16644950211048126, 0, 0.8032786846160889, 0);
 LoUI["10"]["BorderColor3"] = Color3.fromRGB(0, 0, 0);
 LoUI["10"]["Position"] = UDim2.new(0.03799999877810478, 0, 0.1420000046491623, 0);
@@ -152,28 +147,16 @@ LoUI["15"]["SortOrder"] = Enum.SortOrder.LayoutOrder;
 LoUI["16"] = Instance.new("UIPadding", LoUI["c"]);
 LoUI["16"]["PaddingLeft"] = UDim.new(0.014000000432133675, 0);
 
--- LoUI.TopBar.ProfileMenu.Clock Shadow
-LoUI["s17"] = Instance.new("Frame", LoUI["c"]);
-LoUI["s17"]["BorderSizePixel"] = 0;
-LoUI["s17"]["BackgroundColor3"] = Color3.fromRGB(15, 0, 15);
-LoUI["s17"]["Size"] = UDim2.new(0.10328257083892822, 0, 0.682426393032074, 0);
-LoUI["s17"]["Position"] = UDim2.new(0.26031631231307983 + 0.002, 0, 0.158786803483963 + 0.002, 0);
-LoUI["s17"]["ZIndex"] = 0;
-
--- LoUI.TopBar.ProfileMenu.Clock Shadow Corner
-LoUI["s18"] = Instance.new("UICorner", LoUI["s17"]);
-LoUI["s18"]["CornerRadius"] = UDim.new(0.30000001192092896, 0);
-
 -- LoUI.TopBar.ProfileMenu.Clock
 LoUI["17"] = Instance.new("ImageButton", LoUI["c"]);
 LoUI["17"]["BorderSizePixel"] = 0;
 LoUI["17"]["AutoButtonColor"] = false;
-LoUI["17"]["BackgroundColor3"] = Color3.fromRGB(21, 0, 21); -- Changed main color
+LoUI["17"]["BackgroundColor3"] = Color3.fromRGB(21, 0, 21); -- Cor principal alterada
 LoUI["17"]["Size"] = UDim2.new(0.10328257083892822, 0, 0.682426393032074, 0);
 LoUI["17"]["Name"] = [[Clock]];
 LoUI["17"]["BorderColor3"] = Color3.fromRGB(0, 0, 0);
 LoUI["17"]["Position"] = UDim2.new(0.26031631231307983, 0, 0.158786803483963, 0);
-LoUI["17"]["ZIndex"] = 1;
+createShadow().Parent = LoUI["17"]; -- Adicionado sombreamento
 
 -- LoUI.TopBar.ProfileMenu.Clock.UICorner
 LoUI["18"] = Instance.new("UICorner", LoUI["17"]);
@@ -195,28 +178,16 @@ LoUI["1a"]["Text"] = [[00:00]];
 LoUI["1a"]["BackgroundTransparency"] = 1;
 LoUI["1a"]["Position"] = UDim2.new(0.21512815356254578, 0, 0.27320244908332825, 0);
 
--- LoUI.TopBar.ProfileMenu.Title Shadow
-LoUI["s1b"] = Instance.new("Frame", LoUI["c"]);
-LoUI["s1b"]["BorderSizePixel"] = 0;
-LoUI["s1b"]["BackgroundColor3"] = Color3.fromRGB(15, 0, 15);
-LoUI["s1b"]["Size"] = UDim2.new(0.23481373488903046, 0, 0.682426393032074, 0);
-LoUI["s1b"]["Position"] = UDim2.new(0.015024710446596146 + 0.002, 0, 0.18421050906181335 + 0.002, 0);
-LoUI["s1b"]["ZIndex"] = 0;
-
--- LoUI.TopBar.ProfileMenu.Title Shadow Corner
-LoUI["s1c"] = Instance.new("UICorner", LoUI["s1b"]);
-LoUI["s1c"]["CornerRadius"] = UDim.new(0.30000001192092896, 0);
-
 -- LoUI.TopBar.ProfileMenu.Title
 LoUI["1b"] = Instance.new("ImageButton", LoUI["c"]);
 LoUI["1b"]["BorderSizePixel"] = 0;
 LoUI["1b"]["AutoButtonColor"] = false;
-LoUI["1b"]["BackgroundColor3"] = Color3.fromRGB(21, 0, 21); -- Changed main color
+LoUI["1b"]["BackgroundColor3"] = Color3.fromRGB(21, 0, 21); -- Cor principal alterada
 LoUI["1b"]["Size"] = UDim2.new(0.23481373488903046, 0, 0.682426393032074, 0);
 LoUI["1b"]["Name"] = [[Title]];
 LoUI["1b"]["BorderColor3"] = Color3.fromRGB(0, 0, 0);
 LoUI["1b"]["Position"] = UDim2.new(0.015024710446596146, 0, 0.18421050906181335, 0);
-LoUI["1b"]["ZIndex"] = 1;
+createShadow().Parent = LoUI["1b"]; -- Adicionado sombreamento
 
 -- LoUI.TopBar.ProfileMenu.Title.UICorner
 LoUI["1c"] = Instance.new("UICorner", LoUI["1b"]);
@@ -238,31 +209,18 @@ LoUI["1e"]["Text"] = [[DarkRay]];
 LoUI["1e"]["BackgroundTransparency"] = 1;
 LoUI["1e"]["Position"] = UDim2.new(0.13402166962623596, 0, 0.27320244908332825, 0);
 
--- LoUI.TopBar.TopBarClose Shadow
-LoUI["s1f"] = Instance.new("Frame", LoUI["2"]);
-LoUI["s1f"]["BorderSizePixel"] = 0;
-LoUI["s1f"]["BackgroundColor3"] = Color3.fromRGB(15, 0, 15);
-LoUI["s1f"]["Size"] = UDim2.new(0.08402203768491745, 0, 0.4803149402141571, 0);
-LoUI["s1f"]["Position"] = UDim2.new(0.915977954864502 + 0.002, 0, 0.5196850299835205 + 0.002, 0);
-LoUI["s1f"]["ZIndex"] = 0;
-
--- LoUI.TopBar.TopBarClose Shadow Corner
-LoUI["s20"] = Instance.new("UICorner", LoUI["s1f"]);
-LoUI["s20"]["CornerRadius"] = UDim.new(0.20000000298023224, 0);
-
 -- LoUI.TopBar.TopBarClose
 LoUI["1f"] = Instance.new("TextButton", LoUI["2"]);
 LoUI["1f"]["Active"] = false;
 LoUI["1f"]["BorderSizePixel"] = 0;
 LoUI["1f"]["AutoButtonColor"] = false;
-LoUI["1f"]["BackgroundColor3"] = Color3.fromRGB(21, 0, 21); -- Changed main color
+LoUI["1f"]["BackgroundColor3"] = Color3.fromRGB(21, 0, 21); -- Cor principal alterada
 LoUI["1f"]["Selectable"] = false;
 LoUI["1f"]["Size"] = UDim2.new(0.08402203768491745, 0, 0.4803149402141571, 0);
 LoUI["1f"]["Name"] = [[TopBarClose]];
 LoUI["1f"]["BorderColor3"] = Color3.fromRGB(0, 0, 0);
 LoUI["1f"]["Text"] = [[]];
 LoUI["1f"]["Position"] = UDim2.new(0.915977954864502, 0, 0.5196850299835205, 0);
-LoUI["1f"]["ZIndex"] = 1;
 
 -- LoUI.TopBar.TopBarClose.UICorner
 LoUI["20"] = Instance.new("UICorner", LoUI["1f"]);
@@ -271,7 +229,7 @@ LoUI["20"]["CornerRadius"] = UDim.new(0.20000000298023224, 0);
 -- LoUI.TopBar.TopBarClose.idk
 LoUI["22"] = Instance.new("Frame", LoUI["1f"]);
 LoUI["22"]["BorderSizePixel"] = 0;
-LoUI["22"]["BackgroundColor3"] = Color3.fromRGB(21, 0, 21); -- Changed main color
+LoUI["22"]["BackgroundColor3"] = Color3.fromRGB(21, 0, 21); -- Cor principal alterada
 LoUI["22"]["Size"] = UDim2.new(0.2622910141944885, 0, 1, 0);
 LoUI["22"]["BorderColor3"] = Color3.fromRGB(0, 0, 0);
 LoUI["22"]["Position"] = UDim2.new(0.000002001152552111307, 0, 0, 0);
@@ -299,27 +257,15 @@ LoUI["26"]["AspectRatio"] = 0.9836804866790771;
 LoUI["27"] = Instance.new("UIAspectRatioConstraint", LoUI["2"]);
 LoUI["27"]["AspectRatio"] = 5.724700927734375;
 
--- LoUI.MainBar Shadow
-LoUI["s28"] = Instance.new("Frame", LoUI["1"]);
-LoUI["s28"]["BorderSizePixel"] = 0;
-LoUI["s28"]["BackgroundColor3"] = Color3.fromRGB(15, 0, 15);
-LoUI["s28"]["Size"] = UDim2.new(0.5404488444328308, 0, 0.5745577812194824, 0);
-LoUI["s28"]["Position"] = UDim2.new(0.23000000417232513 + 0.005, 0, -0.6119999885559082 + 0.005, 0);
-LoUI["s28"]["ZIndex"] = 0;
-
--- LoUI.MainBar Shadow Corner
-LoUI["s29"] = Instance.new("UICorner", LoUI["s28"]);
-LoUI["s29"]["CornerRadius"] = UDim.new(0.029999999329447746, 0);
-
 -- LoUI.MainBar
 LoUI["28"] = Instance.new("Frame", LoUI["1"]);
 LoUI["28"]["BorderSizePixel"] = 0;
-LoUI["28"]["BackgroundColor3"] = Color3.fromRGB(21, 0, 21); -- Changed main color
+LoUI["28"]["BackgroundColor3"] = Color3.fromRGB(21, 0, 21); -- Cor principal alterada
 LoUI["28"]["Size"] = UDim2.new(0.5404488444328308, 0, 0.5745577812194824, 0);
 LoUI["28"]["BorderColor3"] = Color3.fromRGB(0, 0, 0);
 LoUI["28"]["Position"] = UDim2.new(0.23000000417232513, 0, -0.6119999885559082, 0);
 LoUI["28"]["Name"] = [[MainBar]];
-LoUI["28"]["ZIndex"] = 1;
+createShadow().Parent = LoUI["28"]; -- Adicionado sombreamento
 
 -- LoUI.MainBar.UICorner
 LoUI["29"] = Instance.new("UICorner", LoUI["28"]);
@@ -348,7 +294,7 @@ LoUI["31"] = Instance.new("ScrollingFrame", LoUI["30"]);
 LoUI["31"]["Active"] = true;
 LoUI["31"]["BorderSizePixel"] = 0;
 LoUI["31"]["CanvasSize"] = UDim2.new(0, 0, 0, 0);
-LoUI["31"]["BackgroundColor3"] = Color3.fromRGB(21, 0, 21); -- Changed main color
+LoUI["31"]["BackgroundColor3"] = Color3.fromRGB(21, 0, 21); -- Cor principal alterada
 LoUI["31"]["VerticalScrollBarPosition"] = Enum.VerticalScrollBarPosition.Left;
 LoUI["31"]["AutomaticCanvasSize"] = Enum.AutomaticSize.Y;
 LoUI["31"]["BackgroundTransparency"] = 1;
@@ -366,29 +312,18 @@ LoUI["32"]["HorizontalAlignment"] = Enum.HorizontalAlignment.Center;
 LoUI["32"]["Padding"] = UDim.new(0.014999999664723873, 0);
 LoUI["32"]["SortOrder"] = Enum.SortOrder.LayoutOrder;
 
--- LoUI.Folder.TabButtonReserved Shadow
-LoUI["s33"] = Instance.new("Frame", LoUI["30"]);
-LoUI["s33"]["BorderSizePixel"] = 0;
-LoUI["s33"]["BackgroundColor3"] = Color3.fromRGB(15, 0, 15);
-LoUI["s33"]["Size"] = UDim2.new(0.19896680116653442, 0, 0.6315789818763733, 0);
-LoUI["s33"]["Position"] = UDim2.new(0.015000020153820515 + 0.002, 0, 0.18421050906181335 + 0.002, 0);
-LoUI["s33"]["ZIndex"] = 0;
-
--- LoUI.Folder.TabButtonReserved Shadow Corner
-LoUI["s34"] = Instance.new("UICorner", LoUI["s33"]);
-LoUI["s34"]["CornerRadius"] = UDim.new(0.30000001192092896, 0);
-
 -- LoUI.Folder.TabButtonReserved
 LoUI["33"] = Instance.new("ImageButton", LoUI["30"]);
 LoUI["33"]["BorderSizePixel"] = 0;
 LoUI["33"]["AutoButtonColor"] = false;
-LoUI["33"]["BackgroundColor3"] = Color3.fromRGB(21, 0, 21); -- Changed main color
+LoUI["33"]["BackgroundColor3"] = Color3.fromRGB(21, 0, 21); -- Cor principal alterada
 LoUI["33"]["Size"] = UDim2.new(0.19896680116653442, 0, 0.6315789818763733, 0);
 LoUI["33"]["Name"] = [[TabButtonReserved]];
 LoUI["33"]["BorderColor3"] = Color3.fromRGB(0, 0, 0);
 LoUI["33"]["Visible"] = false;
 LoUI["33"]["Position"] = UDim2.new(0.015000020153820515, 0, 0.18421050906181335, 0);
-LoUI["33"]["ZIndex"] = 1;
+createShadow().Parent = LoUI["33"]; -- Adicionado sombreamento
+createHoverStroke().Parent = LoUI["33"]; -- Adicionado efeito de hover
 
 -- LoUI.Folder.TabButtonReserved.UICorner
 LoUI["34"] = Instance.new("UICorner", LoUI["33"]);
@@ -451,30 +386,17 @@ LoUI["3b"]["SortOrder"] = Enum.SortOrder.LayoutOrder;
 LoUI["3c"] = Instance.new("UIPadding", LoUI["33"]);
 LoUI["3c"]["PaddingLeft"] = UDim.new(0.10999999940395355, 0);
 
--- LoUI.Folder.Dropdown Shadow
-LoUI["s3d"] = Instance.new("Frame", LoUI["30"]);
-LoUI["s3d"]["BorderSizePixel"] = 0;
-LoUI["s3d"]["BackgroundColor3"] = Color3.fromRGB(15, 0, 15);
-LoUI["s3d"]["Size"] = UDim2.new(0.9614325165748596, 0, 0.2624756097793579, 0);
-LoUI["s3d"]["Position"] = UDim2.new(0.019283747300505638 + 0.002, 0, 0.12373435497283936 + 0.002, 0);
-LoUI["s3d"]["ZIndex"] = 0;
-LoUI["s3d"]["Visible"] = false;
-
--- LoUI.Folder.Dropdown Shadow Corner
-LoUI["s3e"] = Instance.new("UICorner", LoUI["s3d"]);
-LoUI["s3e"]["CornerRadius"] = UDim.new(0.03999999910593033, 0);
-
 -- LoUI.Folder.Dropdown
 LoUI["3d"] = Instance.new("Frame", LoUI["30"]);
 LoUI["3d"]["BorderSizePixel"] = 0;
-LoUI["3d"]["BackgroundColor3"] = Color3.fromRGB(21, 0, 21); -- Changed main color
+LoUI["3d"]["BackgroundColor3"] = Color3.fromRGB(21, 0, 21); -- Cor principal alterada
 LoUI["3d"]["Size"] = UDim2.new(0.9614325165748596, 0, 0.2624756097793579, 0);
 LoUI["3d"]["BorderColor3"] = Color3.fromRGB(0, 0, 0);
 LoUI["3d"]["Position"] = UDim2.new(0.019283747300505638, 0, 0.12373435497283936, 0);
 LoUI["3d"]["AutomaticSize"] = Enum.AutomaticSize.Y;
 LoUI["3d"]["Visible"] = false;
 LoUI["3d"]["Name"] = [[Dropdown]];
-LoUI["3d"]["ZIndex"] = 1;
+createShadow().Parent = LoUI["3d"]; -- Adicionado sombreamento
 
 -- LoUI.Folder.Dropdown.UICorner
 LoUI["3e"] = Instance.new("UICorner", LoUI["3d"]);
@@ -514,28 +436,15 @@ LoUI["41"]["Name"] = [[Description]];
 LoUI["41"]["BackgroundTransparency"] = 1;
 LoUI["41"]["Position"] = UDim2.new(0.011461317539215088, 0, 0.7547013759613037, 0);
 
--- LoUI.Folder.Dropdown.DropdownBar Shadow
-LoUI["s42"] = Instance.new("Frame", LoUI["3d"]);
-LoUI["s42"]["BorderSizePixel"] = 0;
-LoUI["s42"]["BackgroundColor3"] = Color3.fromRGB(15, 0, 15);
-LoUI["s42"]["Size"] = UDim2.new(0.9684813618659973, 0, 0.29096919298171997, 0);
-LoUI["s42"]["Position"] = UDim2.new(0.014326647855341434 + 0.002, 0, 0.34552592039108276 + 0.002, 0);
-LoUI["s42"]["ZIndex"] = 0;
-
--- LoUI.Folder.Dropdown.DropdownBar Shadow Corner
-LoUI["s43"] = Instance.new("UICorner", LoUI["s42"]);
-LoUI["s43"]["CornerRadius"] = UDim.new(0.20000000298023224, 0);
-
 -- LoUI.Folder.Dropdown.DropdownBar
 LoUI["42"] = Instance.new("Frame", LoUI["3d"]);
 LoUI["42"]["BorderSizePixel"] = 0;
-LoUI["42"]["BackgroundColor3"] = Color3.fromRGB(21, 0, 21); -- Changed main color
+LoUI["42"]["BackgroundColor3"] = Color3.fromRGB(21, 0, 21); -- Cor principal alterada
 LoUI["42"]["LayoutOrder"] = 10;
 LoUI["42"]["Size"] = UDim2.new(0.9684813618659973, 0, 0.29096919298171997, 0);
 LoUI["42"]["BorderColor3"] = Color3.fromRGB(0, 0, 0);
 LoUI["42"]["Position"] = UDim2.new(0.014326647855341434, 0, 0.34552592039108276, 0);
 LoUI["42"]["Name"] = [[DropdownBar]];
-LoUI["42"]["ZIndex"] = 1;
 
 -- LoUI.Folder.Dropdown.DropdownBar.UICorner
 LoUI["43"] = Instance.new("UICorner", LoUI["42"]);
@@ -576,7 +485,7 @@ LoUI["48"]["Position"] = UDim2.new(0, 0, 0.21875, 0);
 LoUI["49"] = Instance.new("TextButton", LoUI["42"]);
 LoUI["49"]["BorderSizePixel"] = 0;
 LoUI["49"]["AutoButtonColor"] = false;
-LoUI["49"]["BackgroundColor3"] = Color3.fromRGB(21, 0, 21); -- Changed main color
+LoUI["49"]["BackgroundColor3"] = Color3.fromRGB(21, 0, 21); -- Cor principal alterada
 LoUI["49"]["Selectable"] = false;
 LoUI["49"]["Size"] = UDim2.new(1, 0, 1, 0);
 LoUI["49"]["LayoutOrder"] = 10;
@@ -585,30 +494,16 @@ LoUI["49"]["BorderColor3"] = Color3.fromRGB(0, 0, 0);
 LoUI["49"]["Text"] = [[]];
 LoUI["49"]["BackgroundTransparency"] = 1;
 
--- LoUI.Folder.Dropdown.Box Shadow
-LoUI["s4a"] = Instance.new("Frame", LoUI["3d"]);
-LoUI["s4a"]["BorderSizePixel"] = 0;
-LoUI["s4a"]["BackgroundColor3"] = Color3.fromRGB(15, 0, 15);
-LoUI["s4a"]["Size"] = UDim2.new(0.9700000286102295, 0, 0, 0);
-LoUI["s4a"]["Position"] = UDim2.new(0.014326647855341434 + 0.002, 0, 0.6362887620925903 + 0.002, 0);
-LoUI["s4a"]["ZIndex"] = 0;
-LoUI["s4a"]["Visible"] = false;
-
--- LoUI.Folder.Dropdown.Box Shadow Corner
-LoUI["s4d"] = Instance.new("UICorner", LoUI["s4a"]);
-LoUI["s4d"]["CornerRadius"] = UDim.new(0.05999999865889549, 0);
-
 -- LoUI.Folder.Dropdown.Box
 LoUI["4a"] = Instance.new("Frame", LoUI["3d"]);
 LoUI["4a"]["BorderSizePixel"] = 0;
-LoUI["4a"]["BackgroundColor3"] = Color3.fromRGB(21, 0, 21); -- Changed main color
+LoUI["4a"]["BackgroundColor3"] = Color3.fromRGB(21, 0, 21); -- Cor principal alterada
 LoUI["4a"]["LayoutOrder"] = 10;
 LoUI["4a"]["Size"] = UDim2.new(0.9700000286102295, 0, 0, 0);
 LoUI["4a"]["BorderColor3"] = Color3.fromRGB(0, 0, 0);
 LoUI["4a"]["Position"] = UDim2.new(0.014326647855341434, 0, 0.6362887620925903, 0);
 LoUI["4a"]["Visible"] = false;
 LoUI["4a"]["Name"] = [[Box]];
-LoUI["4a"]["ZIndex"] = 1;
 
 -- LoUI.Folder.Dropdown.Box.UICorner
 LoUI["4d"] = Instance.new("UICorner", LoUI["4a"]);
@@ -634,31 +529,17 @@ LoUI["4f"] = Instance.new("UIListLayout", LoUI["4e"]);
 LoUI["4f"]["HorizontalAlignment"] = Enum.HorizontalAlignment.Center;
 LoUI["4f"]["SortOrder"] = Enum.SortOrder.LayoutOrder;
 
--- LoUI.Folder.Keybind Shadow
-LoUI["s50"] = Instance.new("Frame", LoUI["30"]);
-LoUI["s50"]["Active"] = true;
-LoUI["s50"]["BorderSizePixel"] = 0;
-LoUI["s50"]["BackgroundColor3"] = Color3.fromRGB(15, 0, 15);
-LoUI["s50"]["Size"] = UDim2.new(0.9614325165748596, 0, 0.2624756097793579, 0);
-LoUI["s50"]["Position"] = UDim2.new(0.019283747300505638 + 0.002, 0, 0.12373435497283936 + 0.002, 0);
-LoUI["s50"]["ZIndex"] = 0;
-LoUI["s50"]["Visible"] = false;
-
--- LoUI.Folder.Keybind Shadow Corner
-LoUI["s51"] = Instance.new("UICorner", LoUI["s50"]);
-LoUI["s51"]["CornerRadius"] = UDim.new(0.03999999910593033, 0);
-
 -- LoUI.Folder.Keybind
 LoUI["50"] = Instance.new("Frame", LoUI["30"]);
 LoUI["50"]["Active"] = true;
 LoUI["50"]["BorderSizePixel"] = 0;
-LoUI["50"]["BackgroundColor3"] = Color3.fromRGB(21, 0, 21); -- Changed main color
+LoUI["50"]["BackgroundColor3"] = Color3.fromRGB(21, 0, 21); -- Cor principal alterada
 LoUI["50"]["Size"] = UDim2.new(0.9614325165748596, 0, 0.2624756097793579, 0);
 LoUI["50"]["BorderColor3"] = Color3.fromRGB(0, 0, 0);
 LoUI["50"]["Position"] = UDim2.new(0.019283747300505638, 0, 0.12373435497283936, 0);
 LoUI["50"]["Visible"] = false;
 LoUI["50"]["Name"] = [[Keybind]];
-LoUI["50"]["ZIndex"] = 1;
+createShadow().Parent = LoUI["50"]; -- Adicionado sombreamento
 
 -- LoUI.Folder.Keybind.UICorner
 LoUI["51"] = Instance.new("UICorner", LoUI["50"]);
@@ -698,29 +579,15 @@ LoUI["54"]["Name"] = [[Description]];
 LoUI["54"]["BackgroundTransparency"] = 1;
 LoUI["54"]["Position"] = UDim2.new(0.012893982231616974, 0, 0.7092373967170715, 0);
 
--- LoUI.Folder.Keybind.Bind Shadow
-LoUI["s55"] = Instance.new("Frame", LoUI["50"]);
-LoUI["s55"]["Active"] = true;
-LoUI["s55"]["BorderSizePixel"] = 0;
-LoUI["s55"]["BackgroundColor3"] = Color3.fromRGB(15, 0, 15);
-LoUI["s55"]["Size"] = UDim2.new(0.14899714291095734, 0, 0.29096919298171997, 0);
-LoUI["s55"]["Position"] = UDim2.new(0.014326647855341434 + 0.002, 0, 0.34552592039108276 + 0.002, 0);
-LoUI["s55"]["ZIndex"] = 0;
-
--- LoUI.Folder.Keybind.Bind Shadow Corner
-LoUI["s56"] = Instance.new("UICorner", LoUI["s55"]);
-LoUI["s56"]["CornerRadius"] = UDim.new(0.20000000298023224, 0);
-
 -- LoUI.Folder.Keybind.Bind
 LoUI["55"] = Instance.new("Frame", LoUI["50"]);
 LoUI["55"]["Active"] = true;
 LoUI["55"]["BorderSizePixel"] = 0;
-LoUI["55"]["BackgroundColor3"] = Color3.fromRGB(21, 0, 21); -- Changed main color
+LoUI["55"]["BackgroundColor3"] = Color3.fromRGB(21, 0, 21); -- Cor principal alterada
 LoUI["55"]["Size"] = UDim2.new(0.14899714291095734, 0, 0.29096919298171997, 0);
 LoUI["55"]["BorderColor3"] = Color3.fromRGB(0, 0, 0);
 LoUI["55"]["Position"] = UDim2.new(0.014326647855341434, 0, 0.34552592039108276, 0);
 LoUI["55"]["Name"] = [[Bind]];
-LoUI["55"]["ZIndex"] = 1;
 
 -- LoUI.Folder.Keybind.Bind.UICorner
 LoUI["56"] = Instance.new("UICorner", LoUI["55"]);
@@ -744,30 +611,17 @@ LoUI["59"]["Text"] = [[key]];
 LoUI["59"]["Position"] = UDim2.new(0, 0, 0.21875, 0);
 LoUI["59"]["BackgroundTransparency"] = 0.9900000095367432;
 
--- LoUI.Folder.Label Shadow
-LoUI["s5a"] = Instance.new("Frame", LoUI["30"]);
-LoUI["s5a"]["BorderSizePixel"] = 0;
-LoUI["s5a"]["BackgroundColor3"] = Color3.fromRGB(15, 0, 15);
-LoUI["s5a"]["Size"] = UDim2.new(0.9614325165748596, 0, 0.07873434573411942, 0);
-LoUI["s5a"]["Position"] = UDim2.new(0.019283747300505638 + 0.002, 0, 0.01806684397161007 + 0.002, 0);
-LoUI["s5a"]["ZIndex"] = 0;
-LoUI["s5a"]["Visible"] = false;
-
--- LoUI.Folder.Label Shadow Corner
-LoUI["s5b"] = Instance.new("UICorner", LoUI["s5a"]);
-LoUI["s5b"]["CornerRadius"] = UDim.new(0.33000001311302185, 0);
-
 -- LoUI.Folder.Label
 LoUI["5a"] = Instance.new("Frame", LoUI["30"]);
 LoUI["5a"]["BorderSizePixel"] = 0;
-LoUI["5a"]["BackgroundColor3"] = Color3.fromRGB(21, 0, 21); -- Changed main color
+LoUI["5a"]["BackgroundColor3"] = Color3.fromRGB(21, 0, 21); -- Cor principal alterada
 LoUI["5a"]["Size"] = UDim2.new(0.9614325165748596, 0, 0.07873434573411942, 0);
 LoUI["5a"]["BorderColor3"] = Color3.fromRGB(0, 0, 0);
 LoUI["5a"]["Position"] = UDim2.new(0.019283747300505638, 0, 0.01806684397161007, 0);
 LoUI["5a"]["AutomaticSize"] = Enum.AutomaticSize.Y;
 LoUI["5a"]["Visible"] = false;
 LoUI["5a"]["Name"] = [[Label]];
-LoUI["5a"]["ZIndex"] = 1;
+createShadow().Parent = LoUI["5a"]; -- Adicionado sombreamento
 
 -- LoUI.Folder.Label.UICorner
 LoUI["5b"] = Instance.new("UICorner", LoUI["5a"]);
@@ -790,29 +644,16 @@ LoUI["5d"]["Name"] = [[Title]];
 LoUI["5d"]["BackgroundTransparency"] = 1;
 LoUI["5d"]["Position"] = UDim2.new(0.018000036478042603, 0, 0.22100010514259338, 0);
 
--- LoUI.Folder.Slider Shadow
-LoUI["s5e"] = Instance.new("Frame", LoUI["30"]);
-LoUI["s5e"]["BorderSizePixel"] = 0;
-LoUI["s5e"]["BackgroundColor3"] = Color3.fromRGB(15, 0, 15);
-LoUI["s5e"]["Size"] = UDim2.new(0.9614325165748596, 0, 0.2624756097793579, 0);
-LoUI["s5e"]["Position"] = UDim2.new(0.019283747300505638 + 0.002, 0, 0.12373435497283936 + 0.002, 0);
-LoUI["s5e"]["ZIndex"] = 0;
-LoUI["s5e"]["Visible"] = false;
-
--- LoUI.Folder.Slider Shadow Corner
-LoUI["s5f"] = Instance.new("UICorner", LoUI["s5e"]);
-LoUI["s5f"]["CornerRadius"] = UDim.new(0.03999999910593033, 0);
-
 -- LoUI.Folder.Slider
 LoUI["5e"] = Instance.new("Frame", LoUI["30"]);
 LoUI["5e"]["BorderSizePixel"] = 0;
-LoUI["5e"]["BackgroundColor3"] = Color3.fromRGB(21, 0, 21); -- Changed main color
+LoUI["5e"]["BackgroundColor3"] = Color3.fromRGB(21, 0, 21); -- Cor principal alterada
 LoUI["5e"]["Size"] = UDim2.new(0.9614325165748596, 0, 0.2624756097793579, 0);
 LoUI["5e"]["BorderColor3"] = Color3.fromRGB(0, 0, 0);
 LoUI["5e"]["Position"] = UDim2.new(0.019283747300505638, 0, 0.12373435497283936, 0);
 LoUI["5e"]["Visible"] = false;
 LoUI["5e"]["Name"] = [[Slider]];
-LoUI["5e"]["ZIndex"] = 1;
+createShadow().Parent = LoUI["5e"]; -- Adicionado sombreamento
 
 -- LoUI.Folder.Slider.UICorner
 LoUI["5f"] = Instance.new("UICorner", LoUI["5e"]);
@@ -835,28 +676,15 @@ LoUI["61"]["Name"] = [[Title]];
 LoUI["61"]["BackgroundTransparency"] = 1;
 LoUI["61"]["Position"] = UDim2.new(0.017191976308822632, 0, 0.10911344736814499, 0);
 
--- LoUI.Folder.Slider.ActualSlider Shadow
-LoUI["s62"] = Instance.new("Frame", LoUI["5e"]);
-LoUI["s62"]["BorderSizePixel"] = 0;
-LoUI["s62"]["BackgroundColor3"] = Color3.fromRGB(15, 0, 15);
-LoUI["s62"]["Size"] = UDim2.new(0.9684813618659973, 0, 0.29096919298171997, 0);
-LoUI["s62"]["Position"] = UDim2.new(0.014326647855341434 + 0.002, 0, 0.34552592039108276 + 0.002, 0);
-LoUI["s62"]["ZIndex"] = 0;
-
--- LoUI.Folder.Slider.ActualSlider Shadow Corner
-LoUI["s63"] = Instance.new("UICorner", LoUI["s62"]);
-LoUI["s63"]["CornerRadius"] = UDim.new(0.20000000298023224, 0);
-
 -- LoUI.Folder.Slider.ActualSlider
 LoUI["62"] = Instance.new("Frame", LoUI["5e"]);
 LoUI["62"]["BorderSizePixel"] = 0;
-LoUI["62"]["BackgroundColor3"] = Color3.fromRGB(21, 0, 21); -- Changed main color
+LoUI["62"]["BackgroundColor3"] = Color3.fromRGB(21, 0, 21); -- Cor principal alterada
 LoUI["62"]["Size"] = UDim2.new(0.9684813618659973, 0, 0.29096919298171997, 0);
 LoUI["62"]["ClipsDescendants"] = true;
 LoUI["62"]["BorderColor3"] = Color3.fromRGB(0, 0, 0);
 LoUI["62"]["Position"] = UDim2.new(0.014326647855341434, 0, 0.34552592039108276, 0);
 LoUI["62"]["Name"] = [[ActualSlider]];
-LoUI["62"]["ZIndex"] = 1;
 
 -- LoUI.Folder.Slider.ActualSlider.UICorner
 LoUI["63"] = Instance.new("UICorner", LoUI["62"]);
@@ -928,29 +756,16 @@ LoUI["6d"]["Name"] = [[Description]];
 LoUI["6d"]["BackgroundTransparency"] = 1;
 LoUI["6d"]["Position"] = UDim2.new(0.015759311616420746, 0, 0.7274229526519775, 0);
 
--- LoUI.Folder.Textbox Shadow
-LoUI["s6e"] = Instance.new("Frame", LoUI["30"]);
-LoUI["s6e"]["BorderSizePixel"] = 0;
-LoUI["s6e"]["BackgroundColor3"] = Color3.fromRGB(15, 0, 15);
-LoUI["s6e"]["Size"] = UDim2.new(0.9614325165748596, 0, 0.2624756097793579, 0);
-LoUI["s6e"]["Position"] = UDim2.new(0.019283747300505638 + 0.002, 0, 0.12373435497283936 + 0.002, 0);
-LoUI["s6e"]["ZIndex"] = 0;
-LoUI["s6e"]["Visible"] = false;
-
--- LoUI.Folder.Textbox Shadow Corner
-LoUI["s6f"] = Instance.new("UICorner", LoUI["s6e"]);
-LoUI["s6f"]["CornerRadius"] = UDim.new(0.03999999910593033, 0);
-
 -- LoUI.Folder.Textbox
 LoUI["6e"] = Instance.new("Frame", LoUI["30"]);
 LoUI["6e"]["BorderSizePixel"] = 0;
-LoUI["6e"]["BackgroundColor3"] = Color3.fromRGB(21, 0, 21); -- Changed main color
+LoUI["6e"]["BackgroundColor3"] = Color3.fromRGB(21, 0, 21); -- Cor principal alterada
 LoUI["6e"]["Size"] = UDim2.new(0.9614325165748596, 0, 0.2624756097793579, 0);
 LoUI["6e"]["BorderColor3"] = Color3.fromRGB(0, 0, 0);
 LoUI["6e"]["Position"] = UDim2.new(0.019283747300505638, 0, 0.12373435497283936, 0);
 LoUI["6e"]["Visible"] = false;
 LoUI["6e"]["Name"] = [[Textbox]];
-LoUI["6e"]["ZIndex"] = 1;
+createShadow().Parent = LoUI["6e"]; -- Adicionado sombreamento
 
 -- LoUI.Folder.Textbox.UICorner
 LoUI["6f"] = Instance.new("UICorner", LoUI["6e"]);
@@ -990,27 +805,14 @@ LoUI["72"]["Name"] = [[Description]];
 LoUI["72"]["BackgroundTransparency"] = 1;
 LoUI["72"]["Position"] = UDim2.new(0.012893982231616974, 0, 0.7092373967170715, 0);
 
--- LoUI.Folder.Textbox.TextboxBar Shadow
-LoUI["s73"] = Instance.new("Frame", LoUI["6e"]);
-LoUI["s73"]["BorderSizePixel"] = 0;
-LoUI["s73"]["BackgroundColor3"] = Color3.fromRGB(15, 0, 15);
-LoUI["s73"]["Size"] = UDim2.new(0.9684813618659973, 0, 0.29096919298171997, 0);
-LoUI["s73"]["Position"] = UDim2.new(0.014326647855341434 + 0.002, 0, 0.34552592039108276 + 0.002, 0);
-LoUI["s73"]["ZIndex"] = 0;
-
--- LoUI.Folder.Textbox.TextboxBar Shadow Corner
-LoUI["s74"] = Instance.new("UICorner", LoUI["s73"]);
-LoUI["s74"]["CornerRadius"] = UDim.new(0.20000000298023224, 0);
-
 -- LoUI.Folder.Textbox.TextboxBar
 LoUI["73"] = Instance.new("Frame", LoUI["6e"]);
 LoUI["73"]["BorderSizePixel"] = 0;
-LoUI["73"]["BackgroundColor3"] = Color3.fromRGB(21, 0, 21); -- Changed main color
+LoUI["73"]["BackgroundColor3"] = Color3.fromRGB(21, 0, 21); -- Cor principal alterada
 LoUI["73"]["Size"] = UDim2.new(0.9684813618659973, 0, 0.29096919298171997, 0);
 LoUI["73"]["BorderColor3"] = Color3.fromRGB(0, 0, 0);
 LoUI["73"]["Position"] = UDim2.new(0.014326647855341434, 0, 0.34552592039108276, 0);
 LoUI["73"]["Name"] = [[TextboxBar]];
-LoUI["73"]["ZIndex"] = 1;
 
 -- LoUI.Folder.Textbox.TextboxBar.UICorner
 LoUI["74"] = Instance.new("UICorner", LoUI["73"]);
@@ -1035,31 +837,18 @@ LoUI["77"]["Text"] = [[]];
 LoUI["77"]["Position"] = UDim2.new(0, 0, 0.21875, 0);
 LoUI["77"]["Name"] = [[ActualTextbox]];
 
--- LoUI.Folder.Toggle Shadow
-LoUI["s78"] = Instance.new("Frame", LoUI["30"]);
-LoUI["s78"]["Active"] = true;
-LoUI["s78"]["BorderSizePixel"] = 0;
-LoUI["s78"]["BackgroundColor3"] = Color3.fromRGB(15, 0, 15);
-LoUI["s78"]["Size"] = UDim2.new(0.9614325165748596, 0, 0.15495234727859497, 0);
-LoUI["s78"]["Position"] = UDim2.new(0.019283747300505638 + 0.002, 0, 0.6786856055259705 + 0.002, 0);
-LoUI["s78"]["ZIndex"] = 0;
-LoUI["s78"]["Visible"] = false;
-
--- LoUI.Folder.Toggle Shadow Corner
-LoUI["s79"] = Instance.new("UICorner", LoUI["s78"]);
-LoUI["s79"]["CornerRadius"] = UDim.new(0.03999999910593033, 0);
-
 -- LoUI.Folder.Toggle
 LoUI["78"] = Instance.new("Frame", LoUI["30"]);
 LoUI["78"]["Active"] = true;
 LoUI["78"]["BorderSizePixel"] = 0;
-LoUI["78"]["BackgroundColor3"] = Color3.fromRGB(21, 0, 21); -- Changed main color
+LoUI["78"]["BackgroundColor3"] = Color3.fromRGB(21, 0, 21); -- Cor principal alterada
 LoUI["78"]["Size"] = UDim2.new(0.9614325165748596, 0, 0.15495234727859497, 0);
 LoUI["78"]["BorderColor3"] = Color3.fromRGB(0, 0, 0);
 LoUI["78"]["Position"] = UDim2.new(0.019283747300505638, 0, 0.6786856055259705, 0);
 LoUI["78"]["Visible"] = false;
 LoUI["78"]["Name"] = [[Toggle]];
-LoUI["78"]["ZIndex"] = 1;
+createShadow().Parent = LoUI["78"]; -- Adicionado sombreamento
+createHoverStroke().Parent = LoUI["78"]; -- Adicionado efeito de hover
 
 -- LoUI.Folder.Toggle.UICorner
 LoUI["79"] = Instance.new("UICorner", LoUI["78"]);
@@ -1100,19 +889,6 @@ LoUI["7c"]["Name"] = [[Description]];
 LoUI["7c"]["BackgroundTransparency"] = 1;
 LoUI["7c"]["Position"] = UDim2.new(0.011461318470537663, 0, 0.5852904319763184, 0);
 
--- LoUI.Folder.Toggle.Label Shadow
-LoUI["s7d"] = Instance.new("Frame", LoUI["78"]);
-LoUI["s7d"]["BorderSizePixel"] = 0;
-LoUI["s7d"]["BackgroundColor3"] = Color3.fromRGB(15, 0, 15);
-LoUI["s7d"]["Size"] = UDim2.new(0.03868212550878525, 0, 0.42860323190689087, 0);
-LoUI["s7d"]["Position"] = UDim2.new(0.92550128698349 + 0.002, 0, 0.27990657091140747 + 0.002, 0);
-LoUI["s7d"]["ZIndex"] = 0;
-LoUI["s7d"]["AutomaticSize"] = Enum.AutomaticSize.Y;
-
--- LoUI.Folder.Toggle.Label Shadow Corner
-LoUI["s7e"] = Instance.new("UICorner", LoUI["s7d"]);
-LoUI["s7e"]["CornerRadius"] = UDim.new(0.33000001311302185, 0);
-
 -- LoUI.Folder.Toggle.Label
 LoUI["7d"] = Instance.new("Frame", LoUI["78"]);
 LoUI["7d"]["BorderSizePixel"] = 0;
@@ -1122,46 +898,32 @@ LoUI["7d"]["BorderColor3"] = Color3.fromRGB(0, 0, 0);
 LoUI["7d"]["Position"] = UDim2.new(0.92550128698349, 0, 0.27990657091140747, 0);
 LoUI["7d"]["AutomaticSize"] = Enum.AutomaticSize.Y;
 LoUI["7d"]["Name"] = [[Label]];
-LoUI["7d"]["ZIndex"] = 1;
 
 -- LoUI.Folder.Toggle.Label.UICorner
 LoUI["7e"] = Instance.new("UICorner", LoUI["7d"]);
 LoUI["7e"]["CornerRadius"] = UDim.new(0.33000001311302185, 0);
 
--- LoUI.Folder.Toggle.Label.Label (this is the inner movable part)
+-- LoUI.Folder.Toggle.Label.Label
 LoUI["81"] = Instance.new("TextButton", LoUI["7d"]);
 LoUI["81"]["BorderSizePixel"] = 0;
-LoUI["81"]["BackgroundColor3"] = Color3.fromRGB(21, 0, 21); -- Changed main color
+LoUI["81"]["BackgroundColor3"] = Color3.fromRGB(21, 0, 21); -- Cor principal alterada
 LoUI["81"]["Selectable"] = false;
-LoUI["81"]["Size"] = UDim2.new(0.5, 0, 1, 0); -- Half the width for toggle effect
+LoUI["81"]["Size"] = UDim2.new(1, 0, 1, 0);
 LoUI["81"]["Name"] = [[Label]];
 LoUI["81"]["BorderColor3"] = Color3.fromRGB(0, 0, 0);
 LoUI["81"]["Text"] = [[]];
 LoUI["81"]["AutomaticSize"] = Enum.AutomaticSize.Y;
-LoUI["81"]["BackgroundTransparency"] = 0; -- Make it visible
+LoUI["81"]["BackgroundTransparency"] = 1;
 
 -- LoUI.Folder.Toggle.Label.Label.UICorner
 LoUI["82"] = Instance.new("UICorner", LoUI["81"]);
 LoUI["82"]["CornerRadius"] = UDim.new(0.33000001311302185, 0);
 
--- LoUI.Folder.Button Shadow
-LoUI["s84"] = Instance.new("Frame", LoUI["30"]);
-LoUI["s84"]["BorderSizePixel"] = 0;
-LoUI["s84"]["BackgroundColor3"] = Color3.fromRGB(15, 0, 15);
-LoUI["s84"]["Size"] = UDim2.new(0.9614325165748596, 0, 0.15495234727859497, 0);
-LoUI["s84"]["Position"] = UDim2.new(0.019283747300505638 + 0.002, 0, 0.6786856055259705 + 0.002, 0);
-LoUI["s84"]["ZIndex"] = 0;
-LoUI["s84"]["Visible"] = false;
-
--- LoUI.Folder.Button Shadow Corner
-LoUI["s85"] = Instance.new("UICorner", LoUI["s84"]);
-LoUI["s85"]["CornerRadius"] = UDim.new(0.03999999910593033, 0);
-
 -- LoUI.Folder.Button
 LoUI["84"] = Instance.new("TextButton", LoUI["30"]);
 LoUI["84"]["BorderSizePixel"] = 0;
 LoUI["84"]["AutoButtonColor"] = false;
-LoUI["84"]["BackgroundColor3"] = Color3.fromRGB(21, 0, 21); -- Changed main color
+LoUI["84"]["BackgroundColor3"] = Color3.fromRGB(21, 0, 21); -- Cor principal alterada
 LoUI["84"]["Selectable"] = false;
 LoUI["84"]["Visible"] = false;
 LoUI["84"]["Size"] = UDim2.new(0.9614325165748596, 0, 0.15495234727859497, 0);
@@ -1169,7 +931,8 @@ LoUI["84"]["Name"] = [[Button]];
 LoUI["84"]["BorderColor3"] = Color3.fromRGB(0, 0, 0);
 LoUI["84"]["Text"] = [[]];
 LoUI["84"]["Position"] = UDim2.new(0.019283747300505638, 0, 0.6786856055259705, 0);
-LoUI["84"]["ZIndex"] = 1;
+createShadow().Parent = LoUI["84"]; -- Adicionado sombreamento
+createHoverStroke().Parent = LoUI["84"]; -- Adicionado efeito de hover
 
 -- LoUI.Folder.Button.UICorner
 LoUI["85"] = Instance.new("UICorner", LoUI["84"]);
@@ -1210,33 +973,18 @@ LoUI["88"]["Name"] = [[Description]];
 LoUI["88"]["BackgroundTransparency"] = 1;
 LoUI["88"]["Position"] = UDim2.new(0.011461318470537663, 0, 0.5852904319763184, 0);
 
--- LoUI.Folder.DropdownButton Shadow
-LoUI["s89"] = Instance.new("Frame", LoUI["30"]);
-LoUI["s89"]["Active"] = false;
-LoUI["s89"]["BorderSizePixel"] = 0;
-LoUI["s89"]["BackgroundColor3"] = Color3.fromRGB(15, 0, 15);
-LoUI["s89"]["Size"] = UDim2.new(0.9995859265327454, 0, 0.17368526756763458, 0);
-LoUI["s89"]["Position"] = UDim2.new(0.08656254410743713 + 0.002, 0, 0 + 0.002, 0);
-LoUI["s89"]["ZIndex"] = 0;
-LoUI["s89"]["Visible"] = false;
-
--- LoUI.Folder.DropdownButton Shadow Corner
-LoUI["s8a"] = Instance.new("UICorner", LoUI["s89"]);
-LoUI["s8a"]["CornerRadius"] = UDim.new(0.20000000298023224, 0);
-
 -- LoUI.Folder.DropdownButton
 LoUI["89"] = Instance.new("TextButton", LoUI["30"]);
 LoUI["89"]["Active"] = false;
 LoUI["89"]["BorderSizePixel"] = 0;
-LoUI["89"]["AutoButtonColor"] = false;
-LoUI["89"]["BackgroundColor3"] = Color3.fromRGB(21, 0, 21); -- Changed main color
+LoUI["89"]["BackgroundColor3"] = Color3.fromRGB(21, 0, 21); -- Cor principal alterada
 LoUI["89"]["Selectable"] = false;
 LoUI["89"]["Visible"] = false;
 LoUI["89"]["Size"] = UDim2.new(0.9995859265327454, 0, 0.17368526756763458, 0);
 LoUI["89"]["Name"] = [[DropdownButton]];
 LoUI["89"]["BorderColor3"] = Color3.fromRGB(0, 0, 0);
 LoUI["89"]["Position"] = UDim2.new(0.08656254410743713, 0, 0, 0);
-LoUI["89"]["ZIndex"] = 1;
+createHoverStroke().Parent = LoUI["89"]; -- Adicionado efeito de hover
 
 -- LoUI.Folder.DropdownButton.UICorner
 LoUI["8a"] = Instance.new("UICorner", LoUI["89"]);
@@ -1258,24 +1006,11 @@ LoUI["8d"]["Name"] = [[name]];
 LoUI["8d"]["BackgroundTransparency"] = 1;
 LoUI["8d"]["Position"] = UDim2.new(0, 0, 0.21875, 0);
 
--- LoUI.Button (This one is outside the folder, needs shadow too)
-LoUI["se8"] = Instance.new("Frame", LoUI["1"]);
-LoUI["se8"]["BorderSizePixel"] = 0;
-LoUI["se8"]["BackgroundColor3"] = Color3.fromRGB(15, 0, 15);
-LoUI["se8"]["Size"] = UDim2.new(0.9614325165748596, 0, 0.15495234727859497, 0);
-LoUI["se8"]["Position"] = UDim2.new(0.019283747300505638 + 0.002, 0, 0.6786856055259705 + 0.002, 0);
-LoUI["se8"]["ZIndex"] = 0;
-LoUI["se8"]["Visible"] = false;
-
--- LoUI.Button Shadow Corner
-LoUI["sef"] = Instance.new("UICorner", LoUI["se8"]);
-LoUI["sef"]["CornerRadius"] = UDim.new(0.03999999910593033, 0);
-
 -- LoUI.Button
 LoUI["8e"] = Instance.new("TextButton", LoUI["1"]);
 LoUI["8e"]["BorderSizePixel"] = 0;
 LoUI["8e"]["AutoButtonColor"] = false;
-LoUI["8e"]["BackgroundColor3"] = Color3.fromRGB(21, 0, 21); -- Changed main color
+LoUI["8e"]["BackgroundColor3"] = Color3.fromRGB(21, 0, 21); -- Cor principal alterada
 LoUI["8e"]["Selectable"] = false;
 LoUI["8e"]["Visible"] = false;
 LoUI["8e"]["Size"] = UDim2.new(0.9614325165748596, 0, 0.15495234727859497, 0);
@@ -1283,7 +1018,6 @@ LoUI["8e"]["Name"] = [[Button]];
 LoUI["8e"]["BorderColor3"] = Color3.fromRGB(0, 0, 0);
 LoUI["8e"]["Text"] = [[]];
 LoUI["8e"]["Position"] = UDim2.new(0.019283747300505638, 0, 0.6786856055259705, 0);
-LoUI["8e"]["ZIndex"] = 1;
 
 -- LoUI.Button.UICorner
 LoUI["8f"] = Instance.new("UICorner", LoUI["8e"]);
@@ -1349,13 +1083,14 @@ Closure = function()
 local UILIB = {}
 local parent  = script.Parent
 local reserved = parent.Folder
-local GlobalColor1 = Color3.fromRGB(21, 0, 21) -- Main Color (Updated)
-local GlobalColor2 = Color3.fromRGB(220, 160, 190) -- Highlight Color
 UILIB.__index = UILIB
 
 local listening = false
 local twServ = game:GetService("TweenService")
 local UIS = game:GetService("UserInputService")
+-- SET YOUR THEME HERE
+local GlobalColor1 = Color3.fromRGB(21, 0, 21) -- Main Color (Cor principal alterada)
+local GlobalColor2 = Color3.fromRGB(220, 160, 190) -- Highlight Color
 local closed = false
 
 parent.TopBar.ProfileMenu.PlayerProfile.TextLabel.Text = game:GetService("Players").LocalPlayer.DisplayName
@@ -1365,18 +1100,13 @@ parent.TopBar.ProfileMenu.PlayerProfile.ImageLabel.Image = game:GetService("Play
 function UILIB:Load(name, img, direction)
 	local self = setmetatable({}, UILIB)
 	task.spawn(function()
-			local tw = twServ:Create(parent.MainBar, TweenInfo.new(0.4, Enum.EasingStyle.Linear, Enum.EasingDirection.Out), { Position = UDim2.new(0.23, 0,0.212, 0) })
-			local tw2 = twServ:Create(parent.TopBar, TweenInfo.new(0.7, Enum.EasingStyle.Quad, Enum.EasingDirection.In), { Position = UDim2.new(0.23, 0,0.012, 0) })
-            -- Animate shadows as well
-            local twShadow1 = twServ:Create(parent.TopBarShadow, TweenInfo.new(0.7, Enum.EasingStyle.Quad, Enum.EasingDirection.In), { Position = UDim2.new(0.23 + 0.005, 0,0.012 + 0.005, 0) })
-            local twShadow2 = twServ:Create(parent.MainBarShadow, TweenInfo.new(0.4, Enum.EasingStyle.Linear, Enum.EasingDirection.Out), { Position = UDim2.new(0.23 + 0.005, 0,0.212 + 0.005, 0) })
-
+			-- Animações de entrada suavizadas
+			local tw = twServ:Create(parent.MainBar, TweenInfo.new(0.5, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), { Position = UDim2.new(0.23, 0,0.212, 0) })
+			local tw2 = twServ:Create(parent.TopBar, TweenInfo.new(0.5, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), { Position = UDim2.new(0.23, 0,0.012, 0) })
 			tw:Play()
-            twShadow2:Play()
 			tw.Completed:Wait()
-			task.wait(0.3)
+			task.wait(0.1)
 			tw2:Play()
-            twShadow1:Play()
 	end)
         task.spawn(function()
 	     while true do
@@ -1393,147 +1123,119 @@ function UILIB:Load(name, img, direction)
 		parent.MainBar.Logo.Image = ""
 		end
 
+	local function setupButtonAnimation(button)
+		local stroke = button:FindFirstChildOfClass("UIStroke")
+		if not stroke then return end
+
+		button.MouseEnter:Connect(function()
+			stroke.Enabled = true
+		end)
+		button.MouseLeave:Connect(function()
+			stroke.Enabled = false
+		end)
+		button.MouseButton1Down:Connect(function()
+			twServ:Create(button, TweenInfo.new(0.1, Enum.EasingStyle.Sine), {Size = button.Size - UDim2.fromScale(0.01, 0.01)}):Play()
+		end)
+		button.MouseButton1Up:Connect(function()
+			twServ:Create(button, TweenInfo.new(0.1, Enum.EasingStyle.Sine), {Size = button.Size + UDim2.fromScale(0.01, 0.01)}):Play()
+		end)
+	end
 
 	parent.TopBar.TopBarClose.MouseButton1Click:Connect(function()
 		if closed == false then
 			closed = true
-			local tw = twServ:Create(parent.MainBar, TweenInfo.new(0.4, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { Position = UDim2.new(0.23, 0,-0.612, 0) })
-			local tw3 = twServ:Create(parent.TopBar.TopBarClose, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.In), { Position = UDim2.new(0.916, 0,0.95, 0) })
-			local tw2 = twServ:Create(parent.TopBar, TweenInfo.new(0.2, Enum.EasingStyle.Linear, Enum.EasingDirection.Out), { Position = UDim2.new(0.23, 0,-0.173, 0) })
-			local twRotate = twServ:Create(parent.TopBar.TopBarClose.ImageLabel, TweenInfo.new(0.4, Enum.EasingStyle.Quad, Enum.EasingDirection.In), { Rotation = 180 })
-
-            -- Animate shadows for closing
-            local twShadow1 = twServ:Create(parent.TopBarShadow, TweenInfo.new(0.2, Enum.EasingStyle.Linear, Enum.EasingDirection.Out), { Position = UDim2.new(0.23 + 0.005, 0,-0.173 + 0.005, 0) })
-            local twShadow2 = twServ:Create(parent.MainBarShadow, TweenInfo.new(0.4, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { Position = UDim2.new(0.23 + 0.005, 0,-0.612 + 0.005, 0) })
-            local twShadow3 = twServ:Create(LoUI["s1f"], TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.In), { Position = UDim2.new(0.916 + 0.002, 0,0.95 + 0.002, 0) })
+			local tw = twServ:Create(parent.MainBar, TweenInfo.new(0.4, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), { Position = UDim2.new(0.23, 0,-0.612, 0) })
+			local tw3 = twServ:Create(parent.TopBar.TopBarClose, TweenInfo.new(0.3, Enum.EasingStyle.Sine, Enum.EasingDirection.In), { Position = UDim2.new(0.916, 0,0.95, 0) })
+			local tw2 = twServ:Create(parent.TopBar, TweenInfo.new(0.2, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), { Position = UDim2.new(0.23, 0,-0.173, 0) })
+			local twRotate = twServ:Create(parent.TopBar.TopBarClose.ImageLabel, TweenInfo.new(0.4, Enum.EasingStyle.Sine, Enum.EasingDirection.In), { Rotation = 180 })
 
 			tw:Play()
-            twShadow2:Play()
 			tw.Completed:Wait()
 			tw2:Play()
-            twShadow1:Play()
 			task.wait(0.1)
 			twRotate:Play()
 			tw3:Play()
-            twShadow3:Play()
 			
 		elseif closed == true then
 			closed = false
-			local tw = twServ:Create(parent.MainBar, TweenInfo.new(0.4, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { Position = UDim2.new(0.23, 0,0.212, 0) })
-			local tw3 = twServ:Create(parent.TopBar.TopBarClose, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.In), { Position = UDim2.new(0.916, 0,0.52, 0) })
-			local tw2 = twServ:Create(parent.TopBar, TweenInfo.new(0.2, Enum.EasingStyle.Linear, Enum.EasingDirection.Out), { Position = UDim2.new(0.23, 0,0.012, 0) })
-			local twRotate = twServ:Create(parent.TopBar.TopBarClose.ImageLabel, TweenInfo.new(0.4, Enum.EasingStyle.Quad, Enum.EasingDirection.In), { Rotation = 0 })
-
-            -- Animate shadows for opening
-            local twShadow1 = twServ:Create(parent.TopBarShadow, TweenInfo.new(0.2, Enum.EasingStyle.Linear, Enum.EasingDirection.Out), { Position = UDim2.new(0.23 + 0.005, 0,0.012 + 0.005, 0) })
-            local twShadow2 = twServ:Create(parent.MainBarShadow, TweenInfo.new(0.4, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { Position = UDim2.new(0.23 + 0.005, 0,0.212 + 0.005, 0) })
-            local twShadow3 = twServ:Create(LoUI["s1f"], TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.In), { Position = UDim2.new(0.916 + 0.002, 0,0.52 + 0.002, 0) })
+			local tw = twServ:Create(parent.MainBar, TweenInfo.new(0.4, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), { Position = UDim2.new(0.23, 0,0.212, 0) })
+			local tw3 = twServ:Create(parent.TopBar.TopBarClose, TweenInfo.new(0.3, Enum.EasingStyle.Sine, Enum.EasingDirection.In), { Position = UDim2.new(0.916, 0,0.52, 0) })
+			local tw2 = twServ:Create(parent.TopBar, TweenInfo.new(0.2, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), { Position = UDim2.new(0.23, 0,0.012, 0) })
+			local twRotate = twServ:Create(parent.TopBar.TopBarClose.ImageLabel, TweenInfo.new(0.4, Enum.EasingStyle.Sine, Enum.EasingDirection.In), { Rotation = 0 })
 
 			tw:Play()
-            twShadow2:Play()
 			tw.Completed:Wait()
 			tw2:Play()
-            twShadow1:Play()
 			task.wait(0.1)
 			twRotate:Play()
 			tw3:Play()
-            twShadow3:Play()
 		end
 	end)
 
 
 	function self:Open()
-		local tw = twServ:Create(parent.MainBar, TweenInfo.new(0.4, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { Position = UDim2.new(0.23, 0,0.212, 0) })
-		local tw3 = twServ:Create(parent.TopBar.TopBarClose, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.In), { Position = UDim2.new(0.916, 0,0.52, 0) })
-		local tw2 = twServ:Create(parent.TopBar, TweenInfo.new(0.2, Enum.EasingStyle.Linear, Enum.EasingDirection.Out), { Position = UDim2.new(0.23, 0,0.012, 0) })
-		local twRotate = twServ:Create(parent.TopBar.TopBarClose.ImageLabel, TweenInfo.new(0.4, Enum.EasingStyle.Quad, Enum.EasingDirection.In), { Rotation = 0 })
-
-        local twShadow1 = twServ:Create(parent.TopBarShadow, TweenInfo.new(0.2, Enum.EasingStyle.Linear, Enum.EasingDirection.Out), { Position = UDim2.new(0.23 + 0.005, 0,0.012 + 0.005, 0) })
-        local twShadow2 = twServ:Create(parent.MainBarShadow, TweenInfo.new(0.4, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { Position = UDim2.new(0.23 + 0.005, 0,0.212 + 0.005, 0) })
-        local twShadow3 = twServ:Create(LoUI["s1f"], TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.In), { Position = UDim2.new(0.916 + 0.002, 0,0.52 + 0.002, 0) })
+		local tw = twServ:Create(parent.MainBar, TweenInfo.new(0.4, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), { Position = UDim2.new(0.23, 0,0.212, 0) })
+		local tw3 = twServ:Create(parent.TopBar.TopBarClose, TweenInfo.new(0.3, Enum.EasingStyle.Sine, Enum.EasingDirection.In), { Position = UDim2.new(0.916, 0,0.52, 0) })
+		local tw2 = twServ:Create(parent.TopBar, TweenInfo.new(0.2, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), { Position = UDim2.new(0.23, 0,0.012, 0) })
+		local twRotate = twServ:Create(parent.TopBar.TopBarClose.ImageLabel, TweenInfo.new(0.4, Enum.EasingStyle.Sine, Enum.EasingDirection.In), { Rotation = 0 })
 
 		tw:Play()
-        twShadow2:Play()
 		tw.Completed:Wait()
 		tw2:Play()
-        twShadow1:Play()
 		task.wait(0.1)
 		twRotate:Play()
 		tw3:Play()
-        twShadow3:Play()
 	end
 
 	function self:Close()
-		local tw = twServ:Create(parent.MainBar, TweenInfo.new(0.4, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { Position = UDim2.new(0.23, 0,-0.612, 0) })
-		local tw3 = twServ:Create(parent.TopBar.TopBarClose, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.In), { Position = UDim2.new(0.916, 0,0.95, 0) })
-		local tw2 = twServ:Create(parent.TopBar, TweenInfo.new(0.2, Enum.EasingStyle.Linear, Enum.EasingDirection.Out), { Position = UDim2.new(0.23, 0,-0.173, 0) })
-		local twRotate = twServ:Create(parent.TopBar.TopBarClose.ImageLabel, TweenInfo.new(0.4, Enum.EasingStyle.Quad, Enum.EasingDirection.In), { Rotation = 180 })
-
-        local twShadow1 = twServ:Create(parent.TopBarShadow, TweenInfo.new(0.2, Enum.EasingStyle.Linear, Enum.EasingDirection.Out), { Position = UDim2.new(0.23 + 0.005, 0,-0.173 + 0.005, 0) })
-        local twShadow2 = twServ:Create(parent.MainBarShadow, TweenInfo.new(0.4, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { Position = UDim2.new(0.23 + 0.005, 0,-0.612 + 0.005, 0) })
-        local twShadow3 = twServ:Create(LoUI["s1f"], TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.In), { Position = UDim2.new(0.916 + 0.002, 0,0.95 + 0.002, 0) })
+		local tw = twServ:Create(parent.MainBar, TweenInfo.new(0.4, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), { Position = UDim2.new(0.23, 0,-0.612, 0) })
+		local tw3 = twServ:Create(parent.TopBar.TopBarClose, TweenInfo.new(0.3, Enum.EasingStyle.Sine, Enum.EasingDirection.In), { Position = UDim2.new(0.916, 0,0.95, 0) })
+		local tw2 = twServ:Create(parent.Top, TweenInfo.new(0.2, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), { Position = UDim2.new(0.23, 0,-0.173, 0) })
+		local twRotate = twServ:Create(parent.TopBar.TopBarClose.ImageLabel, TweenInfo.new(0.4, Enum.EasingStyle.Sine, Enum.EasingDirection.In), { Rotation = 180 })
 
 		tw:Play()
-        twShadow2:Play()
 		tw.Completed:Wait()
 		tw2:Play()
-        twShadow1:Play()
 		task.wait(0.1)
 		twRotate:Play()
 		tw3:Play()
-        twShadow3:Play()
 	end
 	function self:HideCloseButton()
 		LoUI["1f"].Visible = false
-        LoUI["s1f"].Visible = false -- Hide shadow too
 	end
-    function self:Hide()
+        function self:Hide()
 		LoUI["1"].Enabled = false
 	end
 	function self:Show()
 		LoUI["1"].Enabled = true
-    end
+        end
 	function self:Toggle()
 		if closed == false then
 			closed = true
-			local tw = twServ:Create(parent.MainBar, TweenInfo.new(0.4, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { Position = UDim2.new(0.23, 0,-0.612, 0) })
-			local tw3 = twServ:Create(parent.TopBar.TopBarClose, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.In), { Position = UDim2.new(0.916, 0,0.95, 0) })
-			local tw2 = twServ:Create(parent.TopBar, TweenInfo.new(0.2, Enum.EasingStyle.Linear, Enum.EasingDirection.Out), { Position = UDim2.new(0.23, 0,-0.173, 0) })
-			local twRotate = twServ:Create(parent.TopBar.TopBarClose.ImageLabel, TweenInfo.new(0.4, Enum.EasingStyle.Quad, Enum.EasingDirection.In), { Rotation = 180 })
-
-            local twShadow1 = twServ:Create(parent.TopBarShadow, TweenInfo.new(0.2, Enum.EasingStyle.Linear, Enum.EasingDirection.Out), { Position = UDim2.new(0.23 + 0.005, 0,-0.173 + 0.005, 0) })
-            local twShadow2 = twServ:Create(parent.MainBarShadow, TweenInfo.new(0.4, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { Position = UDim2.new(0.23 + 0.005, 0,-0.612 + 0.005, 0) })
-            local twShadow3 = twServ:Create(LoUI["s1f"], TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.In), { Position = UDim2.new(0.916 + 0.002, 0,0.95 + 0.002, 0) })
+			local tw = twServ:Create(parent.MainBar, TweenInfo.new(0.4, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), { Position = UDim2.new(0.23, 0,-0.612, 0) })
+			local tw3 = twServ:Create(parent.TopBar.TopBarClose, TweenInfo.new(0.3, Enum.EasingStyle.Sine, Enum.EasingDirection.In), { Position = UDim2.new(0.916, 0,0.95, 0) })
+			local tw2 = twServ:Create(parent.TopBar, TweenInfo.new(0.2, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), { Position = UDim2.new(0.23, 0,-0.173, 0) })
+			local twRotate = twServ:Create(parent.TopBar.TopBarClose.ImageLabel, TweenInfo.new(0.4, Enum.EasingStyle.Sine, Enum.EasingDirection.In), { Rotation = 180 })
 
 			tw:Play()
-            twShadow2:Play()
 			tw.Completed:Wait()
 			tw2:Play()
 			tw2.Completed:Wait()
-            twShadow1:Play()
 			twRotate:Play()
 			tw3:Play()
-            twShadow3:Play()
 		elseif closed == true then
 			closed = false
-			local tw = twServ:Create(parent.MainBar, TweenInfo.new(0.4, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { Position = UDim2.new(0.23, 0,0.212, 0) })
-			local tw3 = twServ:Create(parent.TopBar.TopBarClose, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.In), { Position = UDim2.new(0.916, 0,0.52, 0) })
-			local tw2 = twServ:Create(parent.TopBar, TweenInfo.new(0.2, Enum.EasingStyle.Linear, Enum.EasingDirection.Out), { Position = UDim2.new(0.23, 0,0.012, 0) })
-			local twRotate = twServ:Create(parent.TopBar.TopBarClose.ImageLabel, TweenInfo.new(0.4, Enum.EasingStyle.Quad, Enum.EasingDirection.In), { Rotation = 0 })
-
-            local twShadow1 = twServ:Create(parent.TopBarShadow, TweenInfo.new(0.2, Enum.EasingStyle.Linear, Enum.EasingDirection.Out), { Position = UDim2.new(0.23 + 0.005, 0,0.012 + 0.005, 0) })
-            local twShadow2 = twServ:Create(parent.MainBarShadow, TweenInfo.new(0.4, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { Position = UDim2.new(0.23 + 0.005, 0,0.212 + 0.005, 0) })
-            local twShadow3 = twServ:Create(LoUI["s1f"], TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.In), { Position = UDim2.new(0.916 + 0.002, 0,0.52 + 0.002, 0) })
+			local tw = twServ:Create(parent.MainBar, TweenInfo.new(0.4, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), { Position = UDim2.new(0.23, 0,0.212, 0) })
+			local tw3 = twServ:Create(parent.TopBar.TopBarClose, TweenInfo.new(0.3, Enum.EasingStyle.Sine, Enum.EasingDirection.In), { Position = UDim2.new(0.916, 0,0.52, 0) })
+			local tw2 = twServ:Create(parent.TopBar, TweenInfo.new(0.2, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), { Position = UDim2.new(0.23, 0,0.012, 0) })
+			local twRotate = twServ:Create(parent.TopBar.TopBarClose.ImageLabel, TweenInfo.new(0.4, Enum.EasingStyle.Sine, Enum.EasingDirection.In), { Rotation = 0 })
 
 			tw:Play()
-            twShadow2:Play()
 			tw.Completed:Wait()
 			tw2:Play()
 			tw2.Completed:Wait()
-            twShadow1:Play()
 			twRotate:Play()
 			tw3:Play()
-            twShadow3:Play()
 		end
 	end
 	function self:SetTheme(color, color2)
@@ -1561,11 +1263,6 @@ function UILIB.newTab(name, img)
 	newTab.Name = name
 	newTab.Visible = false
 
-    local newTabBtnShadow = parent.Folder.TabButtonReservedShadow:Clone()
-    newTabBtnShadow.Parent = parent.TopBar.ScrollingFrame
-    newTabBtnShadow.Name = name .. "Shadow"
-    newTabBtnShadow.Visible = true
-
 	local newTabBtn = parent.Folder.TabButtonReserved:Clone()
 	newTabBtn.Parent = parent.TopBar.ScrollingFrame
 	newTabBtn.Name = name or "Tab"..#parent.MainBar:GetChildren() - 4
@@ -1576,46 +1273,27 @@ function UILIB.newTab(name, img)
 		newTabBtn.ImageLabel.Image = ""
 	end
 	newTabBtn.Visible = true
+	local stroke = newTabBtn:FindFirstChildOfClass("UIStroke")
 
+	newTabBtn.MouseEnter:Connect(function() stroke.Enabled = true end)
+	newTabBtn.MouseLeave:Connect(function() stroke.Enabled = false end)
+	
 	newTabBtn.MouseButton1Click:Connect(function()
 		for i,v in pairs(parent.TopBar.ScrollingFrame:GetChildren()) do
 			if v:IsA("ImageButton") then
 				local vTab = parent.MainBar:FindFirstChild(v.Name)
-                local vTabShadow = parent.TopBar.ScrollingFrame:FindFirstChild(v.Name .. "Shadow")
 				if v.Name ~= name then
 					v.BackgroundTransparency = 0.7
 					vTab.Visible = false
-                    if vTabShadow then vTabShadow.Visible = false end -- Hide shadow for inactive tabs
 				elseif v.Name == name then
 					vTab.Visible = true
 					v.BackgroundTransparency = 0
-                    if vTabShadow then vTabShadow.Visible = true end -- Show shadow for active tab
 				end
 			end
 		end
 	end)
 
-    -- Hover effect for tab buttons
-    newTabBtn.MouseEnter:Connect(function()
-        local twScale = twServ:Create(newTabBtn, TweenInfo.new(0.15), { Size = newTabBtn.Size * 1.05 })
-        twScale:Play()
-        local twBg = twServ:Create(newTabBtn, TweenInfo.new(0.15), { BackgroundColor3 = GlobalColor1:Lerp(Color3.new(1,1,1), 0.1) })
-        twBg:Play()
-    end)
-
-    newTabBtn.MouseLeave:Connect(function()
-        local twScale = twServ:Create(newTabBtn, TweenInfo.new(0.15), { Size = newTabBtn.Size / 1.05 })
-        twScale:Play()
-        local twBg = twServ:Create(newTabBtn, TweenInfo.new(0.15), { BackgroundColor3 = GlobalColor1 })
-        twBg:Play()
-    end)
-
-
 	function self.newButton(name, desc, func)
-        local newbtnShadow = reserved.ButtonShadow:Clone()
-        newbtnShadow.Parent = newTab
-        newbtnShadow.Visible = true
-
 		local newbtn = reserved.Button:Clone()
 		newbtn.Parent = newTab
 		newbtn.Title.Text = name
@@ -1624,33 +1302,14 @@ function UILIB.newTab(name, img)
 		newbtn.Name = name
         newbtn.BackgroundTransparency = 0
 
+		local stroke = newbtn:FindFirstChildOfClass("UIStroke")
+		newbtn.MouseEnter:Connect(function() stroke.Enabled = true end)
+		newbtn.MouseLeave:Connect(function() stroke.Enabled = false end)
+
 		newbtn.MouseButton1Click:Connect(func)
-
-        -- Hover effect for new buttons
-        newbtn.MouseEnter:Connect(function()
-            local twScale = twServ:Create(newbtn, TweenInfo.new(0.15), { Size = newbtn.Size * 1.02 })
-            twScale:Play()
-            local twBg = twServ:Create(newbtn, TweenInfo.new(0.15), { BackgroundColor3 = GlobalColor1:Lerp(Color3.new(1,1,1), 0.1) })
-            twBg:Play()
-            local twShadowPos = twServ:Create(newbtnShadow, TweenInfo.new(0.15), { Position = newbtnShadow.Position - UDim2.new(0.001,0,0.001,0) })
-            twShadowPos:Play()
-        end)
-
-        newbtn.MouseLeave:Connect(function()
-            local twScale = twServ:Create(newbtn, TweenInfo.new(0.15), { Size = newbtn.Size / 1.02 })
-            twScale:Play()
-            local twBg = twServ:Create(newbtn, TweenInfo.new(0.15), { BackgroundColor3 = GlobalColor1 })
-            twBg:Play()
-            local twShadowPos = twServ:Create(newbtnShadow, TweenInfo.new(0.15), { Position = newbtnShadow.Position + UDim2.new(0.001,0,0.001,0) })
-            twShadowPos:Play()
-        end)
 	end
 
 	function self.newLabel(text)
-        local newLabelShadow = reserved.LabelShadow:Clone()
-        newLabelShadow.Parent = newTab
-        newLabelShadow.Visible = true
-
 		local newLabel = reserved.Label:Clone()
 		newLabel.Parent = newTab
 		newLabel.Visible = true
@@ -1667,10 +1326,6 @@ function UILIB.newTab(name, img)
     end
 
 	function self.newInput(name, desc, func)
-        local newInputShadow = reserved.TextboxShadow:Clone()
-        newInputShadow.Parent = newTab
-        newInputShadow.Visible = true
-
 		local newInput = reserved.Textbox:Clone()
 		local textbox = newInput.TextboxBar.ActualTextbox
         newInput.BackgroundTransparency = 0
@@ -1681,15 +1336,6 @@ function UILIB.newTab(name, img)
 		newInput.Description.Text = desc
 		newInput.Name = name
 
-        newInput.TextboxBar.MouseEnter:Connect(function()
-            local twBg = twServ:Create(newInput.TextboxBar, TweenInfo.new(0.15), { BackgroundColor3 = GlobalColor1:Lerp(Color3.new(1,1,1), 0.1) })
-            twBg:Play()
-        end)
-        newInput.TextboxBar.MouseLeave:Connect(function()
-            local twBg = twServ:Create(newInput.TextboxBar, TweenInfo.new(0.15), { BackgroundColor3 = GlobalColor1 })
-            twBg:Play()
-        end)
-
 		textbox.FocusLost:Connect(function()
 			func(textbox.Text)
 		end)
@@ -1697,10 +1343,6 @@ function UILIB.newTab(name, img)
 	end
 
 	function self.newKeybind(name, desc, func)
-        local newKeyShadow = reserved.KeybindShadow:Clone()
-        newKeyShadow.Parent = newTab
-        newKeyShadow.Visible = true
-
 		local newKey = reserved.Keybind:Clone()
         newKey.BackgroundTransparency = 0
 		
@@ -1712,15 +1354,6 @@ function UILIB.newTab(name, img)
 
 		local listening = false
 		local a
-
-        newKey.Bind.MouseEnter:Connect(function()
-            local twBg = twServ:Create(newKey.Bind, TweenInfo.new(0.15), { BackgroundColor3 = GlobalColor1:Lerp(Color3.new(1,1,1), 0.1) })
-            twBg:Play()
-        end)
-        newKey.Bind.MouseLeave:Connect(function()
-            local twBg = twServ:Create(newKey.Bind, TweenInfo.new(0.15), { BackgroundColor3 = GlobalColor1 })
-            twBg:Play()
-        end)
 
 		newKey.Bind.Button.MouseButton1Click:Connect(function()
 			listening = true
@@ -1760,10 +1393,6 @@ function UILIB.newTab(name, img)
 
 
 	function self.newSlider(name, desc, max, manageSlider, func)
-        local newSliderShadow = reserved.SliderShadow:Clone()
-        newSliderShadow.Parent = newTab
-        newSliderShadow.Visible = true
-
 		local newSlider = reserved.Slider:Clone()
         newSlider.BackgroundTransparency = 0
 		
@@ -1799,7 +1428,7 @@ function UILIB.newTab(name, img)
 					Label.Text = perc
 					func(perc, Label)
 				end
-				local tween = tweenServ:Create(Fill, TweenInfo.new(delayTw, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { Size = UDim2.fromScale(Percent, 1) })
+				local tween = tweenServ:Create(Fill, TweenInfo.new(delayTw, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), { Size = UDim2.fromScale(Percent, 1) })
 				tween:Play()
 			until MouseDown == false
 		end
@@ -1811,14 +1440,11 @@ function UILIB.newTab(name, img)
 				MouseDown = false
 			end
 		end)
+
 	end
 	
 	function self.newToggle(title, desc, toggle, func)
 		local realToggle = toggle
-        local newToggleShadow = reserved.ToggleShadow:Clone()
-        newToggleShadow.Parent = newTab
-        newToggleShadow.Visible = true
-
 		local newToggle = reserved.Toggle:Clone()
 		newToggle.Parent = newTab
 		newToggle.Name = title
@@ -1827,12 +1453,13 @@ function UILIB.newTab(name, img)
 		newToggle.Description.Text = desc
 		newToggle.BackgroundTransparency = 0
 		
-        -- Position the inner label for toggle animation
+		local stroke = newToggle:FindFirstChildOfClass("UIStroke")
+		newToggle.MouseEnter:Connect(function() stroke.Enabled = true end)
+		newToggle.MouseLeave:Connect(function() stroke.Enabled = false end)
+
 		if realToggle == true then
-			newToggle.Label.Label.Position = UDim2.new(0.5, 0, 0, 0)
 			newToggle.Label.BackgroundColor3 = GlobalColor2
 		elseif realToggle == false then
-			newToggle.Label.Label.Position = UDim2.new(0, 0, 0, 0)
 			newToggle.Label.BackgroundColor3 = GlobalColor1
 		end
 		
@@ -1840,17 +1467,13 @@ function UILIB.newTab(name, img)
 			
 			if realToggle == true then
 				realToggle = false
-				local twColor = twServ:Create(newToggle.Label, TweenInfo.new(0.2), { BackgroundColor3 = GlobalColor1 })
-                local twPos = twServ:Create(newToggle.Label.Label, TweenInfo.new(0.2), { Position = UDim2.new(0,0,0,0) })
-				twColor:Play()
-                twPos:Play()
+				local twColorOn = twServ:Create(newToggle.Label, TweenInfo.new(0.2, Enum.EasingStyle.Sine), { BackgroundColor3 = GlobalColor1 })
+				twColorOn:Play()
 				func(realToggle)
 			elseif realToggle == false then
 				realToggle = true
-				local twColor = twServ:Create(newToggle.Label, TweenInfo.new(0.2), { BackgroundColor3 = GlobalColor2 })
-                local twPos = twServ:Create(newToggle.Label.Label, TweenInfo.new(0.2), { Position = UDim2.new(0.5,0,0,0) })
-				twColor:Play()
-                twPos:Play()
+				local twColorOn = twServ:Create(newToggle.Label, TweenInfo.new(0.2, Enum.EasingStyle.Sine), { BackgroundColor3 = GlobalColor2 })
+				twColorOn:Play()
 				func(realToggle)
 			end
 		end)
@@ -1858,10 +1481,6 @@ function UILIB.newTab(name, img)
 	end
 	
 	function self.newDropdown(name, desc, listTable, func)
-        local newddShadow = reserved.DropdownShadow:Clone()
-        newddShadow.Parent = newTab
-        newddShadow.Visible = true
-
 		local newdd = reserved.Dropdown:Clone()
 		newdd.Visible = true
 		newdd.Parent = newTab
@@ -1872,38 +1491,26 @@ function UILIB.newTab(name, img)
 		newdd.Description.Text = desc
 		
 		for i, list in ipairs(listTable) do
-            local newddbtnShadow = reserved.DropdownButtonShadow:Clone()
-            newddbtnShadow.Parent = newdd.Box.ScrollingFrame
-            newddbtnShadow.Visible = true
-
 			local newddbtn = reserved.DropdownButton:Clone()
 			newddbtn.Visible = true
 			newddbtn.Parent = newdd.Box.ScrollingFrame
+
+			local stroke = newddbtn:FindFirstChildOfClass("UIStroke")
+			newddbtn.MouseEnter:Connect(function() stroke.Enabled = true end)
+			newddbtn.MouseLeave:Connect(function() stroke.Enabled = false end)
 
 			newddbtn.Name = list
 			newddbtn.name.Text = list
 			task.spawn(function()
 				newddbtn.MouseButton1Click:Connect(function()
 					newdd.DropdownBar.Open.Text = list
-					local twPos = twServ:Create(newdd.Box, TweenInfo.new(0.15), {Size = UDim2.new(0.97, 0,0, 0)})
-                    local twShadowPos = twServ:Create(newddShadow.BoxShadow, TweenInfo.new(0.15), {Size = UDim2.new(0.97, 0,0, 0)})
+					local twPos = twServ:Create(newdd.Box, TweenInfo.new(0.15, Enum.EasingStyle.Sine), {Size = UDim2.new(0.97, 0,0, 0)})
 					twPos:Play()
-                    twShadowPos:Play()
 					twPos.Completed:Wait()
 					newdd.Box.Visible = false
-                    newddShadow.BoxShadow.Visible = false
 					func(list)
 				end)
 			end)
-
-            newddbtn.MouseEnter:Connect(function()
-                local twBg = twServ:Create(newddbtn, TweenInfo.new(0.15), { BackgroundColor3 = GlobalColor1:Lerp(Color3.new(1,1,1), 0.1) })
-                twBg:Play()
-            end)
-            newddbtn.MouseLeave:Connect(function()
-                local twBg = twServ:Create(newddbtn, TweenInfo.new(0.15), { BackgroundColor3 = GlobalColor1 })
-                twBg:Play()
-            end)
 		end		
 		
 		newdd.DropdownBar.Trigger.MouseButton1Click:Connect(function()
@@ -1911,34 +1518,15 @@ function UILIB.newTab(name, img)
 			
 			if newdd.Box.Visible == false then
 				newdd.Box.Visible = true
-                newddShadow.BoxShadow.Visible = true
-				local twPos = twServ:Create(newdd.Box, TweenInfo.new(0.15), {Size = UDim2.new(0.97, 0,1.696, 0)})
-                local twShadowPos = twServ:Create(newddShadow.BoxShadow, TweenInfo.new(0.15), {Size = UDim2.new(0.97, 0,1.696, 0)})
+				local twPos = twServ:Create(newdd.Box, TweenInfo.new(0.2, Enum.EasingStyle.Sine), {Size = UDim2.new(0.97, 0,1.696, 0)})
 				twPos:Play()
-                twShadowPos:Play()
 			elseif newdd.Box.Visible == true then
-				local twPos = twServ:Create(newdd.Box, TweenInfo.new(0.15), {Size = UDim2.new(0.97, 0,0, 0)})
-                local twShadowPos = twServ:Create(newddShadow.BoxShadow, TweenInfo.new(0.15), {Size = UDim2.new(0.97, 0,0, 0)})
+				local twPos = twServ:Create(newdd.Box, TweenInfo.new(0.2, Enum.EasingStyle.Sine), {Size = UDim2.new(0.97, 0,0, 0)})
 				twPos:Play()
-                twShadowPos:Play()
 				twPos.Completed:Wait()
 				newdd.Box.Visible = false
-                newddShadow.BoxShadow.Visible = false
 			end
 		end)
-
-        newdd.DropdownBar.MouseEnter:Connect(function()
-            local twBg = twServ:Create(newdd.DropdownBar, TweenInfo.new(0.15), { BackgroundColor3 = GlobalColor1:Lerp(Color3.new(1,1,1), 0.1) })
-            twBg:Play()
-            local twIconRotate = twServ:Create(newdd.DropdownBar.Icon, TweenInfo.new(0.15), { Rotation = 0 })
-            twIconRotate:Play()
-        end)
-        newdd.DropdownBar.MouseLeave:Connect(function()
-            local twBg = twServ:Create(newdd.DropdownBar, TweenInfo.new(0.15), { BackgroundColor3 = GlobalColor1 })
-            twBg:Play()
-            local twIconRotate = twServ:Create(newdd.DropdownBar.Icon, TweenInfo.new(0.15), { Rotation = 180 })
-            twIconRotate:Play()
-        end)
 	end
 
 	return self
