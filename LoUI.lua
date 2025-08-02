@@ -1,4 +1,4 @@
--- Instances: 92 | Scripts: 0 | Modules: 1
+-- Instances: 90 | Scripts: 0 | Modules: 1
 local LoUI = {};
 
 -- LoUI
@@ -71,16 +71,6 @@ LoUI["8"]["Size"] = UDim2.new(1, 15, 1, 15);
 LoUI["8"]["Name"] = [[DropShadow]];
 LoUI["8"]["BackgroundTransparency"] = 1;
 LoUI["8"]["Position"] = UDim2.new(0.5, 0, 0.5, 0);
-
--- LoUI.TopBar.TopBar
-LoUI["a"] = Instance.new("Frame", LoUI["2"]);
-LoUI["a"]["BorderSizePixel"] = 0;
-LoUI["a"]["BackgroundColor3"] = Color3.fromRGB(35, 0, 36);
-LoUI["a"]["LayoutOrder"] = 2;
-LoUI["a"]["Size"] = UDim2.new(0.9983567, 0, 0.055117853, 0);
-LoUI["a"]["BorderColor3"] = Color3.fromRGB(0, 0, 0);
-LoUI["a"]["Position"] = UDim2.new(0, 0, 0.464567184, 0);
-LoUI["a"]["Name"] = [[TopBar]];
 
 -- LoUI.TopBar.ProfileMenu
 LoUI["c"] = Instance.new("Frame", LoUI["2"]);
@@ -1052,6 +1042,7 @@ local UIS = game:GetService("UserInputService")
 local GlobalColor1 = Color3.fromRGB(35, 0, 36) -- Main Color
 local GlobalColor2 = Color3.fromRGB(138, 67, 139) -- Highlight Color
 local closed = false
+local firstTab = true
 
 parent.TopBar.ProfileMenu.PlayerProfile.TextLabel.Text = game:GetService("Players").LocalPlayer.DisplayName
 parent.TopBar.ProfileMenu.PlayerProfile.ImageLabel.Image = game:GetService("Players"):GetUserThumbnailAsync(game.Players.LocalPlayer.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size100x100)
@@ -1227,6 +1218,15 @@ function UILIB.newTab(name, img)
 		newTabBtn.ImageLabel.Image = ""
 	end
 	newTabBtn.Visible = true
+
+    -- [CORREÇÃO] Seleciona a primeira aba criada por padrão
+    if firstTab then
+        newTab.Visible = true
+        newTabBtn.BackgroundTransparency = 0 -- Marcado
+        firstTab = false
+    else
+        newTabBtn.BackgroundTransparency = 0.7 -- Desmarcado
+    end
 
 	newTabBtn.MouseButton1Click:Connect(function()
 		for i,v in pairs(parent.TopBar.ScrollingFrame:GetChildren()) do
