@@ -1219,13 +1219,12 @@ function UILIB.newTab(name, img)
 	end
 	newTabBtn.Visible = true
 
-    -- [CORREÇÃO] Seleciona a primeira aba criada por padrão
     if firstTab then
         newTab.Visible = true
-        newTabBtn.BackgroundTransparency = 0 -- Marcado
+        newTabBtn.BackgroundTransparency = 0
         firstTab = false
     else
-        newTabBtn.BackgroundTransparency = 0.7 -- Desmarcado
+        newTabBtn.BackgroundTransparency = 0.7
     end
 
 	newTabBtn.MouseButton1Click:Connect(function()
