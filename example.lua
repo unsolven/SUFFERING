@@ -11,7 +11,7 @@
 ]]
 
 -- Carrega a biblioteca LoUI do seu repositório
-local LoUILibrary = loadstring(game:HttpGet("https://raw.githubusercontent.com/unsolven/LoUI-backup/refs/heads/main/LoUI.lua"))()
+local LoUILibrary = loadstring(game:HttpGet("https://raw.githubusercontent.com/unsolven/SUFFERING/refs/heads/main/LoUI.lua"))()
 
 -- Variáveis locais para o jogador e personagem
 local player = game:GetService("Players").LocalPlayer
