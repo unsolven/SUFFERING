@@ -1,8 +1,12 @@
 -- Carrega a biblioteca LoUI do repositório do GitHub
 local LoUILibrary = loadstring(game:HttpGet("https://raw.githubusercontent.com/unsolven/SUFFERING/refs/heads/main/LoUI.lua"))()
 
--- Cria uma nova janela e define seu título e tema
+-- Cria uma nova janela e define seu título
 local window = LoUILibrary:Load("LoUI Hub!")
+
+-- [NOVO] Define a transparência da janela (0 = opaco, 1 = invisível)
+-- Experimente valores como 0.1, 0.3 ou 0.5 para ver o efeito!
+window:SetTransparency(0.2)
 
 -- Cria a primeira aba com um ID de imagem
 local tab1 = LoUILibrary.newTab("Jogadores", "rbxassetid://13529337034")
