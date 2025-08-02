@@ -1,120 +1,67 @@
 --[[
-	ModernUI Library (Loadstring-Friendly)
-	Recriação moderna, responsiva e autocontida para uso em hubs de script.
+	ModernUI Library (v2 - Loadstring-Friendly & Feature-Complete)
+	Combina as funcionalidades completas do script original com uma arquitetura moderna,
+	eficiente e responsiva.
 
-	- Totalmente autocontido para `loadstring(game:HttpGet(...))()`.
-	- Responsivo para mobile e desktop.
-	- API limpa e encadeável.
-	- Tema Roxo Escuro como padrão, mas customizável.
+	- Reintegração de: Slider com Comparação, Selector (Dropdown), Toggle com Keybind,
+	  Textbox, Keybind, Section, Separator e Panic.
 ]]
 
--- A biblioteca principal que será retornada no final.
 local Library = {}
 
 --==============================================================================
 -- DETECÇÃO DE AMBIENTE E SERVIÇOS
 --==============================================================================
-
--- Funções comuns em ambientes de exploit, com fallbacks para o Studio.
 local cloneref = cloneref or function(a) return a end
 local gethui = gethui or get_hidden_gui or function() return game:GetService("CoreGui") end
 
--- Wrapper de serviços para usar `cloneref` de forma consistente.
 local Services = setmetatable({}, {
 	__index = function(_, serviceName)
-		local success, service = pcall(game.GetService, game, serviceName)
-		if success then
-			return cloneref(service)
-		end
-		return nil
+		return cloneref(game:GetService(serviceName))
 	end,
 })
 
--- Serviços essenciais
 local TweenService = Services.TweenService
 local UserInputService = Services.UserInputService
-local RunService = Services.RunService
 local TextService = Services.TextService
 local Players = Services.Players
-local Camera = Services.Workspace and Services.Workspace.CurrentCamera
+local Camera = Services.Workspace.CurrentCamera
+local LocalPlayer = Players.LocalPlayer
+local Mouse = LocalPlayer:GetMouse()
 
 --==============================================================================
--- CONFIGURAÇÃO PADRÃO (Pode ser sobrescrita em Library.CreateWindow)
+-- CONFIGURAÇÃO PADRÃO
 --==============================================================================
 local DefaultConfig = {
 	Title = "Modern UI",
 	Company = "Gemini",
 	ToggleKey = Enum.KeyCode.RightShift,
-
-	Theme = {
-		Background = Color3.fromHex("120E1A"),
-		Surface = Color3.fromHex("1E192B"),
-		Primary = Color3.fromHex("9B59B6"),
-		Accent = Color3.fromHex("8E44AD"),
-		Text = Color3.fromHex("EAEAEA"),
-		TextSecondary = Color3.fromHex("A0A0A0"),
-		Stroke = Color3.fromHex("322A4A"),
-	},
-
-	Font = {
-		Default = Enum.Font.Gotham,
-		Bold = Enum.Font.GothamBold,
-	},
-
-	Animation = {
-		Speed = 0.2,
-		Easing = Enum.EasingStyle.Sine,
-	},
-
+	Theme = { Background = Color3.fromHex("120E1A"), Surface = Color3.fromHex("1E192B"), Primary = Color3.fromHex("9B59B6"), Accent = Color3.fromHex("8E44AD"), Text = Color3.fromHex("EAEAEA"), TextSecondary = Color3.fromHex("A0A0A0"), Stroke = Color3.fromHex("322A4A") },
+	Font = { Default = Enum.Font.Gotham, Bold = Enum.Font.GothamBold },
+	Animation = { Speed = 0.2, Easing = Enum.EasingStyle.Sine },
 	BlurOnOpen = true,
 	FOVOnOpen = true,
 }
 
 --==============================================================================
--- MÓDULOS INTERNOS (NÃO EXPOSTOS)
+-- MÓDULOS INTERNOS
 --==============================================================================
 local Styler, Dragger, ComponentFactory
 
 do -- Bloco para encapsular módulos internos
-	-- Styler: Aplica estilos de forma consistente
 	Styler = {}
-	function Styler.applyCorner(radius)
-		return function(instance)
-			local corner = Instance.new("UICorner")
-			corner.CornerRadius = UDim.new(0, radius or 6)
-			corner.Parent = instance
-		end
-	end
-	function Styler.applyStroke(thickness, color, theme)
-		return function(instance)
-			local stroke = Instance.new("UIStroke")
-			stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-			stroke.Thickness = thickness or 1
-			stroke.Color = color or theme.Stroke
-			stroke.Parent = instance
-		end
-	end
-	function Styler.applyText(props, theme, fontTheme)
-		return function(label)
-			label.Font = props.Font or fontTheme.Default
-			label.TextColor3 = props.Color or theme.Text
-			label.TextSize = props.Size or 14
-			label.TextXAlignment = props.Align or Enum.TextXAlignment.Left
-			label.Text = props.Text or ""
-			label.RichText = true
-		end
-	end
+	function Styler.applyCorner(radius) return function(i) local c = Instance.new("UICorner"); c.CornerRadius = UDim.new(0, radius or 6); c.Parent = i end end
+	function Styler.applyStroke(t, c, th) return function(i) local s = Instance.new("UIStroke"); s.ApplyStrokeMode = Enum.ApplyStrokeMode.Border; s.Thickness = t or 1; s.Color = c or th.Stroke; s.Parent = i end end
+	function Styler.applyText(p, th, ft) return function(l) l.Font = p.Font or ft.Default; l.TextColor3 = p.Color or th.Text; l.TextSize = p.Size or 14; l.TextXAlignment = p.Align or Enum.TextXAlignment.Left; l.Text = p.Text or ""; l.RichText = true end end
 
-	-- Dragger: Lógica para arrastar a janela
 	Dragger = {}
 	function Dragger.enable(frame)
-		local dragging, inputChangedConnection
+		local dragging, inputChangedConn
 		frame.InputBegan:Connect(function(input)
 			if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
 				dragging = true
-				local startPos = input.Position
-				local frameStartPos = frame.Position
-				inputChangedConnection = UserInputService.InputChanged:Connect(function(changedInput)
+				local startPos = input.Position; local frameStartPos = frame.Position
+				inputChangedConn = UserInputService.InputChanged:Connect(function(changedInput)
 					if (changedInput.UserInputType == Enum.UserInputType.MouseMovement or changedInput.UserInputType == Enum.UserInputType.Touch) and dragging then
 						local delta = changedInput.Position - startPos
 						frame.Position = UDim2.new(frameStartPos.X.Scale, frameStartPos.X.Offset + delta.X, frameStartPos.Y.Scale, frameStartPos.Y.Offset + delta.Y)
@@ -124,288 +71,251 @@ do -- Bloco para encapsular módulos internos
 		end)
 		UserInputService.InputEnded:Connect(function(input)
 			if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-				dragging = false
-				if inputChangedConnection then
-					inputChangedConnection:Disconnect()
-					inputChangedConnection = nil
-				end
+				dragging = false; if inputChangedConn then inputChangedConn:Disconnect(); inputChangedConn = nil end
 			end
 		end)
 	end
 	
-	-- ComponentFactory: Cria os componentes da UI (botões, toggles, etc.)
 	ComponentFactory = {}
+	local function create(instanceType, properties)
+		local inst = Instance.new(instanceType)
+		for p, v in pairs(properties) do inst[p] = v end
+		return inst
+	end
 	
-	function ComponentFactory.newButton(parent, config, text, callback)
+	function ComponentFactory.new(type, parent, config, options)
 		local theme, fontTheme, animTheme = config.Theme, config.Font, config.Animation
-		local button = Instance.new("TextButton")
-		button.Name = "Button"
-		button.Size = UDim2.new(1, 0, 0, 35)
-		button.BackgroundColor3 = theme.Surface
-		button.AutoButtonColor = false
-		Styler.applyCorner(6)(button)
-		Styler.applyStroke(1, nil, theme)(button)
-		Styler.applyText({ Text = text, Font = fontTheme.Bold, Align = Enum.TextXAlignment.Center }, theme, fontTheme)(button)
-		button.Parent = parent
-
 		local tweenInfo = TweenInfo.new(animTheme.Speed, animTheme.Easing)
-		button.MouseEnter:Connect(function() TweenService:Create(button, tweenInfo, { BackgroundColor3 = theme.Accent }):Play() end)
-		button.MouseLeave:Connect(function() TweenService:Create(button, tweenInfo, { BackgroundColor3 = theme.Surface }):Play() end)
-		button.MouseButton1Click:Connect(function() task.spawn(callback) end)
-		return button
+		local component
+		
+		if type == "Label" then
+			component = create("TextLabel", { Name = "Label", Size = UDim2.new(1, 0, 0, 0), AutomaticSize = Enum.AutomaticSize.Y, BackgroundTransparency = 1, TextWrapped = true, Parent = parent })
+			Styler.applyText({ Text = options.text, Size = 14, Color = theme.TextSecondary }, theme, fontTheme)(component)
+		
+		elseif type == "Button" then
+			component = create("TextButton", { Name = "Button", Size = UDim2.new(1, 0, 0, 35), BackgroundColor3 = theme.Surface, AutoButtonColor = false, Parent = parent })
+			Styler.applyCorner(6)(component)
+			Styler.applyStroke(1, nil, theme)(component)
+			Styler.applyText({ Text = options.text, Font = fontTheme.Bold, Align = Enum.TextXAlignment.Center }, theme, fontTheme)(component)
+			component.MouseEnter:Connect(function() TweenService:Create(component, tweenInfo, { BackgroundColor3 = theme.Accent }):Play() end)
+			component.MouseLeave:Connect(function() TweenService:Create(component, tweenInfo, { BackgroundColor3 = theme.Surface }):Play() end)
+			component.MouseButton1Click:Connect(function() task.spawn(options.callback) end)
+		
+		elseif type == "Toggle" then
+			local toggled = options.default or false
+			component = create("Frame", { Name = "Toggle", Size = UDim2.new(1, 0, 0, 25), BackgroundTransparency = 1, Parent = parent })
+			local layout = create("UIListLayout", { FillDirection = Enum.FillDirection.Horizontal, VerticalAlignment = Enum.VerticalAlignment.Center, Padding = UDim.new(0, 10), Parent = component })
+			local checkbox = create("Frame", { Size = UDim2.new(0, 20, 0, 20), BackgroundColor3 = theme.Surface, Parent = component })
+			Styler.applyCorner(4)(checkbox); Styler.applyStroke(1, nil, theme)(checkbox)
+			local checkmark = create("Frame", { Size = UDim2.fromScale(0.7, 0.7), AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(0.5, 0.5), BackgroundColor3 = theme.Primary, BackgroundTransparency = toggled and 0 or 1, Parent = checkbox })
+			Styler.applyCorner(4)(checkmark)
+			local label = create("TextLabel", { Size = UDim2.new(1, -30, 1, 0), BackgroundTransparency = 1, Parent = component })
+			Styler.applyText({Text = options.text}, theme, fontTheme)(label)
+			local button = create("TextButton", { Size = UDim2.new(1,0,1,0), BackgroundTransparency = 1, Text = "", Parent = component })
+			
+			local function SetValue(value, silent)
+				toggled = value
+				TweenService:Create(checkmark, tweenInfo, { BackgroundTransparency = toggled and 0 or 1 }):Play()
+				if not silent then task.spawn(options.callback, toggled) end
+			end
+
+			button.MouseButton1Click:Connect(function() SetValue(not toggled) end)
+			task.spawn(options.callback, toggled)
+			
+			local methods = {
+				Frame = component,
+				GetValue = function() return toggled end,
+				SetValue = function(v) SetValue(v) end,
+				Reset = function() SetValue(options.default, true) end,
+			}
+			options.registerForPanic(methods.Reset)
+
+			function methods:AddKeybind(defaultKey)
+				local keybindLabel = create("TextButton", { Name = "KeybindLabel", Size = UDim2.new(0, 50, 0, 20), BackgroundColor3 = theme.Surface, AutoButtonColor = false, Parent = component })
+				layout.HorizontalAlignment = Enum.HorizontalAlignment.Left -- Realign
+				keybindLabel.LayoutOrder = 3
+				Styler.applyCorner(4)(keybindLabel); Styler.applyStroke(1, nil, theme)(keybindLabel);
+				Styler.applyText({ Text = defaultKey.Name, Font = fontTheme.Default, Size = 12, Align = Enum.TextXAlignment.Center }, theme, fontTheme)(keybindLabel)
+				local currentKey = defaultKey
+				keybindLabel.MouseButton1Click:Connect(function()
+					keybindLabel.Text = "..."
+					local input = UserInputService.InputBegan:Wait()
+					currentKey = input.KeyCode
+					keybindLabel.Text = currentKey.Name
+				end)
+				UserInputService.InputBegan:Connect(function(input, gp)
+					if not gp and input.KeyCode == currentKey then
+						SetValue(not toggled)
+					end
+				end)
+				return methods
+			end
+			return methods
+		
+		elseif type == "Slider" then
+			local val = options.values
+			component = create("Frame", { Name = "Slider", Size = UDim2.new(1, 0, 0, 50), BackgroundTransparency = 1, Parent = parent })
+			local layout = create("UIListLayout", { Padding = UDim.new(0, 5), Parent = component })
+			local topRow = create("Frame", { Size = UDim2.new(1, 0, 0, 20), BackgroundTransparency = 1, Parent = component })
+			create("UIListLayout", { FillDirection = Enum.FillDirection.Horizontal, Parent = topRow })
+			local label = create("TextLabel", { Size = UDim2.new(0.7, 0, 1, 0), BackgroundTransparency = 1, Parent = topRow })
+			Styler.applyText({Text = options.text, Font = fontTheme.Bold}, theme, fontTheme)(label)
+			local valueLabel = create("TextLabel", { Size = UDim2.new(0.3, 0, 1, 0), BackgroundTransparency = 1, Parent = topRow })
+			
+			local function formatValue(v)
+				v = math.floor(v)
+				if options.compare then return string.format("%d / %d", v, val.max) else return tostring(v) end
+			end
+			
+			Styler.applyText({ Text = formatValue(val.default), Color = theme.TextSecondary, Align = Enum.TextXAlignment.Right }, theme, fontTheme)(valueLabel)
+			
+			local sliderTrack = create("Frame", { Size = UDim2.new(1, 0, 0, 8), BackgroundColor3 = theme.Surface, Parent = component })
+			Styler.applyCorner(4)(sliderTrack)
+			local percentage = (val.default - val.min) / (val.max - val.min)
+			local sliderFill = create("Frame", { Size = UDim2.new(percentage, 0, 1, 0), BackgroundColor3 = theme.Primary, Parent = sliderTrack })
+			Styler.applyCorner(4)(sliderFill)
+			local sliderButton = create("TextButton", { Size = UDim2.new(1, 0, 1, 0), BackgroundTransparency = 1, Text = "", Parent = sliderTrack })
+
+			local function updateSlider(input, doCallback)
+				local newPercentage = math.clamp((input.Position.X - sliderTrack.AbsolutePosition.X) / sliderTrack.AbsoluteSize.X, 0, 1)
+				local newValue = val.min + (val.max - val.min) * newPercentage
+				TweenService:Create(sliderFill, TweenInfo.new(0.05), { Size = UDim2.new(newPercentage, 0, 1, 0) }):Play()
+				valueLabel.Text = formatValue(newValue)
+				if doCallback then task.spawn(options.callback, math.floor(newValue)) end
+			end
+			sliderButton.InputBegan:Connect(function(input)
+				if input.UserInputType == Enum.UserInputType.MouseButton1 then
+					updateSlider(input, true)
+					local moveConn; moveConn = UserInputService.InputChanged:Connect(function(moveInput) if moveInput.UserInputType == Enum.UserInputType.MouseMovement then updateSlider(moveInput, true) end end)
+					local releaseConn; releaseConn = UserInputService.InputEnded:Connect(function(endInput) if endInput.UserInputType == Enum.UserInputType.MouseButton1 then moveConn:Disconnect(); releaseConn:Disconnect() end end)
+				end
+			end)
+			task.spawn(options.callback, val.default)
+			
+			local methods = {
+				Frame = component,
+				GetValue = function() return math.floor(val.min + (val.max - val.min) * sliderFill.Size.X.Scale) end,
+				SetValue = function(v)
+					local p = (v - val.min) / (val.max - val.min)
+					sliderFill.Size = UDim2.new(p, 0, 1, 0)
+					valueLabel.Text = formatValue(v)
+				end,
+				Reset = function() methods.SetValue(val.default) end,
+			}
+			options.registerForPanic(methods.Reset)
+			return methods
+		
+		elseif type == "Selector" then
+			component = create("Frame", { Name = "Selector", Size = UDim2.new(1, 0, 0, 0), AutomaticSize = Enum.AutomaticSize.Y, BackgroundTransparency = 1, ClipsDescendants = true, Parent = parent })
+			local layout = create("UIListLayout", { Padding = UDim.new(0, 5), Parent = component })
+			local label = ComponentFactory.new("Label", component, config, { text = options.text })
+
+			local dropdownFrame = create("TextButton", { Name = "DropdownFrame", Size = UDim2.new(1, 0, 0, 35), BackgroundColor3 = theme.Surface, AutoButtonColor = false, Parent = component })
+			Styler.applyCorner(6)(dropdownFrame)
+			local dropdownLayout = create("UIListLayout", { FillDirection = Enum.FillDirection.Vertical, Parent = dropdownFrame })
+			
+			local topRow = create("Frame", { Size = UDim2.new(1, 0, 0, 35), BackgroundTransparency = 1, Parent = dropdownFrame })
+			create("UIPadding", { PaddingLeft = UDim.new(0, 10), PaddingRight = UDim.new(0, 10), Parent = topRow })
+			local topRowLayout = create("UIListLayout", { FillDirection = Enum.FillDirection.Horizontal, VerticalAlignment = Enum.VerticalAlignment.Center, Parent = topRow })
+			local selectedLabel = create("TextLabel", { Size = UDim2.new(1, -20, 1, 0), BackgroundTransparency = 1, Parent = topRow })
+			Styler.applyText({ Text = options.default or options.list[1] }, theme, fontTheme)(selectedLabel)
+			local arrow = create("TextLabel", { Size = UDim2.new(0, 20, 1, 0), BackgroundTransparency = 1, Text = "▼", Parent = topRow })
+			Styler.applyText({ Text = "▼", Align = Enum.TextXAlignment.Center }, theme, fontTheme)(arrow)
+			
+			local optionsContainer = create("Frame", { Name = "Options", Size = UDim2.new(1, 0, 0, 0), BackgroundTransparency = 1, ClipsDescendants = true, Parent = dropdownFrame })
+			create("UIListLayout", { Padding = UDim.new(0, 2), Parent = optionsContainer })
+
+			local isOpen = false
+			local function ToggleDropdown()
+				isOpen = not isOpen
+				local targetHeight = isOpen and #options.list * 30 or 0
+				TweenService:Create(optionsContainer, tweenInfo, { Size = UDim2.new(1, 0, 0, targetHeight) }):Play()
+				TweenService:Create(arrow, tweenInfo, { Rotation = isOpen and 180 or 0 }):Play()
+			end
+			dropdownFrame.MouseButton1Click:Connect(ToggleDropdown)
+
+			for _, optionText in ipairs(options.list) do
+				local optionButton = create("TextButton", { Size = UDim2.new(1, 0, 0, 30), BackgroundColor3 = theme.Accent, AutoButtonColor = false, Parent = optionsContainer })
+				Styler.applyCorner(4)(optionButton)
+				Styler.applyText({ Text = optionText, Align = Enum.TextXAlignment.Center }, theme, fontTheme)(optionButton)
+				optionButton.MouseButton1Click:Connect(function()
+					selectedLabel.Text = optionText
+					task.spawn(options.callback, optionText)
+				end)
+			end
+			task.spawn(options.callback, selectedLabel.Text)
+			return { Frame = component, GetValue = function() return selectedLabel.Text end }
+
+		elseif type == "Separator" then
+			component = create("Frame", { Name = "Separator", Size = UDim2.new(1, 0, 0, 1), BackgroundColor3 = theme.Stroke, Parent = parent })
+		end
+		
+		return component
 	end
-	
-	function ComponentFactory.newToggle(parent, config, text, defaultValue, callback)
-		local theme, fontTheme, animTheme = config.Theme, config.Font, config.Animation
-		local toggled = defaultValue or false
-
-		local frame = Instance.new("Frame")
-		frame.Name = "Toggle"
-		frame.Size = UDim2.new(1, 0, 0, 25)
-		frame.BackgroundTransparency = 1
-		frame.Parent = parent
-
-		local layout = Instance.new("UIListLayout", frame)
-		layout.FillDirection = Enum.FillDirection.Horizontal
-		layout.VerticalAlignment = Enum.VerticalAlignment.Center
-		layout.Padding = UDim.new(0, 10)
-		
-		local checkbox = Instance.new("Frame", frame)
-		checkbox.Size = UDim2.new(0, 20, 0, 20)
-		checkbox.BackgroundColor3 = theme.Surface
-		Styler.applyCorner(4)(checkbox)
-		Styler.applyStroke(1, nil, theme)(checkbox)
-		
-		local checkmark = Instance.new("Frame", checkbox)
-		checkmark.Size = UDim2.fromScale(0.7, 0.7)
-		checkmark.AnchorPoint = Vector2.new(0.5, 0.5)
-		checkmark.Position = UDim2.fromScale(0.5, 0.5)
-		checkmark.BackgroundColor3 = theme.Primary
-		checkmark.BackgroundTransparency = toggled and 0 or 1
-		Styler.applyCorner(4)(checkmark)
-
-		local label = Instance.new("TextLabel", frame)
-		label.Size = UDim2.new(1, -30, 1, 0)
-		label.BackgroundTransparency = 1
-		Styler.applyText({Text = text}, theme, fontTheme)(label)
-
-		local button = Instance.new("TextButton", frame)
-		button.Size = UDim2.new(1,0,1,0)
-		button.BackgroundTransparency = 1
-		button.Text = ""
-		
-		local tweenInfo = TweenInfo.new(animTheme.Speed / 2, animTheme.Easing)
-		button.MouseButton1Click:Connect(function()
-			toggled = not toggled
-			TweenService:Create(checkmark, tweenInfo, { BackgroundTransparency = toggled and 0 or 1 }):Play()
-			task.spawn(callback, toggled)
-		end)
-		
-		task.spawn(callback, toggled)
-		return {Frame = frame, GetValue = function() return toggled end}
-	end
-    
-    function ComponentFactory.newLabel(parent, config, text)
-        local theme, fontTheme = config.Theme, config.Font
-		local label = Instance.new("TextLabel")
-		label.Name = "Label"
-		label.Size = UDim2.new(1, 0, 0, 0) -- Altura automática
-		label.AutomaticSize = Enum.AutomaticSize.Y
-		label.BackgroundTransparency = 1
-		Styler.applyText({
-			Text = text,
-			Size = 14,
-			Color = theme.TextSecondary,
-		}, theme, fontTheme)(label)
-		label.TextWrapped = true
-		label.Parent = parent
-		return label
-	end
-
 end
 
 --==============================================================================
--- API PÚBLICA (FUNÇÕES EXPOSTAS)
+-- API PÚBLICA
 --==============================================================================
-
 function Library.CreateWindow(userConfig)
-	-- Mescla a configuração do usuário com a padrão
-	local config = {}
-	for k, v in pairs(DefaultConfig) do
-		config[k] = v
-	end
-	if userConfig then
-		for k, v in pairs(userConfig) do
-			if type(v) == "table" and type(config[k]) == "table" then
-				for k2, v2 in pairs(v) do config[k][k2] = v2 end
-			else
-				config[k] = v
-			end
-		end
-	end
+	local config = {}; for k, v in pairs(DefaultConfig) do config[k] = v end; if userConfig then for k, v in pairs(userConfig) do if type(v) == "table" and type(config[k]) == "table" then for k2, v2 in pairs(v) do config[k][k2] = v2 end else config[k] = v end end end
 
-	-- Cria a UI principal
-	local screenGui = Instance.new("ScreenGui")
-	screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-	screenGui.ResetOnSpawn = false
-
-	local mainFrame = Instance.new("Frame", screenGui)
-	mainFrame.Name = "MainFrame"
-	mainFrame.AnchorPoint = Vector2.new(0.5, 0.5)
-	mainFrame.Position = UDim2.fromScale(0.5, 0.5)
-	mainFrame.Size = UDim2.fromScale(0.4, 0.6)
-	mainFrame.BackgroundColor3 = config.Theme.Background
-	mainFrame.Visible = false
-	mainFrame.ClipsDescendants = true
-	Styler.applyCorner(8)(mainFrame)
-	Styler.applyStroke(1, nil, config.Theme)(mainFrame)
-
-	local aspectRatio = Instance.new("UIAspectRatioConstraint", mainFrame)
-	aspectRatio.AspectRatio = 4 / 3
-	aspectRatio.DominantAxis = Enum.DominantAxis.Height
-	
-	local blurEffect = Camera and Instance.new("BlurEffect", Camera) or nil
-	if blurEffect then blurEffect.Size = 0; blurEffect.Enabled = config.BlurOnOpen end
-
+	local screenGui = create("ScreenGui", { ZIndexBehavior = Enum.ZIndexBehavior.Sibling, ResetOnSpawn = false })
+	local mainFrame = create("Frame", { Name = "MainFrame", AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(0.5, 0.5), Size = UDim2.fromScale(0.4, 0.6), BackgroundColor3 = config.Theme.Background, Visible = false, ClipsDescendants = true, Parent = screenGui })
+	Styler.applyCorner(8)(mainFrame); Styler.applyStroke(1, nil, config.Theme)(mainFrame);
+	create("UIAspectRatioConstraint", { AspectRatio = 4 / 3, DominantAxis = Enum.DominantAxis.Height, Parent = mainFrame })
+	local blurEffect = Camera and create("BlurEffect", { Size = 0, Enabled = config.BlurOnOpen, Parent = Camera }) or nil
 	Dragger.enable(mainFrame)
+	create("UIListLayout", { FillDirection = Enum.FillDirection.Vertical, Padding = UDim.new(0, 10), Parent = mainFrame })
+	create("UIPadding", { PaddingTop = UDim.new(0, 10), PaddingLeft = UDim.new(0, 10), PaddingRight = UDim.new(0, 10), PaddingBottom = UDim.new(0, 10), Parent = mainFrame })
+	local header = create("Frame", { Name = "Header", Size = UDim2.new(1, 0, 0, 30), BackgroundTransparency = 1, Parent = mainFrame })
+	create("UIListLayout", { FillDirection = Enum.FillDirection.Horizontal, VerticalAlignment = Enum.VerticalAlignment.Center, Parent = header })
+	local title = create("TextLabel", { Name = "Title", AutomaticSize = Enum.AutomaticSize.X, Size = UDim2.new(0, 0, 1, 0), Parent = header })
+	Styler.applyText({ Text = string.format("<font color='#%s'>%s</font> // %s", config.Theme.Primary:ToHex(), config.Company, config.Title), Font = config.Font.Bold, Size = 16, }, config.Theme, config.Font)(title)
+	local bodyContainer = create("Frame", { Name = "BodyContainer", Size = UDim2.new(1, 0, 1, -40), BackgroundTransparency = 1, Parent = mainFrame })
+	create("UIListLayout", { FillDirection = Enum.FillDirection.Horizontal, Padding = UDim.new(0, 10), Parent = bodyContainer })
+	local tabContainer = create("Frame", { Name = "TabContainer", Size = UDim2.new(0.3, 0, 1, 0), BackgroundColor3 = config.Theme.Surface, Parent = bodyContainer })
+	Styler.applyCorner(6)(tabContainer); create("UIListLayout", { Padding = UDim.new(0, 5), Parent = tabContainer }); create("UIPadding", { PaddingTop = UDim.new(0, 5), Parent = tabContainer })
+	local pageContainer = create("Frame", { Name = "PageContainer", Size = UDim2.new(0.7, -10, 1, 0), BackgroundColor3 = config.Theme.Surface, ClipsDescendants = true, Parent = bodyContainer })
+	Styler.applyCorner(6)(pageContainer);
 
-	-- Layouts e preenchimento
-	local mainLayout = Instance.new("UIListLayout", mainFrame)
-	mainLayout.FillDirection = Enum.FillDirection.Vertical
-	mainLayout.Padding = UDim.new(0, 10)
-	local mainPadding = Instance.new("UIPadding", mainFrame)
-	mainPadding.PaddingTop = UDim.new(0, 10)
-	mainPadding.PaddingLeft = UDim.new(0, 10)
-	mainPadding.PaddingRight = UDim.new(0, 10)
-	mainPadding.PaddingBottom = UDim.new(0, 10)
-
-	-- Header
-	local header = Instance.new("Frame", mainFrame)
-	header.Name = "Header"
-	header.Size = UDim2.new(1, 0, 0, 30)
-	header.BackgroundTransparency = 1
-	local headerLayout = Instance.new("UIListLayout", header)
-	headerLayout.FillDirection = Enum.FillDirection.Horizontal
-	headerLayout.VerticalAlignment = Enum.VerticalAlignment.Center
-	local title = Instance.new("TextLabel", header)
-	title.Name = "Title"
-	title.AutomaticSize = Enum.AutomaticSize.X
-	title.Size = UDim2.new(0, 0, 1, 0)
-	Styler.applyText({
-		Text = string.format("<font color='#%s'>%s</font> // %s", config.Theme.Primary:ToHex(), config.Company, config.Title),
-		Font = config.Font.Bold,
-		Size = 16,
-	}, config.Theme, config.Font)(title)
-
-	-- Corpo (Abas e Páginas)
-	local bodyContainer = Instance.new("Frame", mainFrame)
-	bodyContainer.Name = "BodyContainer"
-	bodyContainer.Size = UDim2.new(1, 0, 1, -40)
-	bodyContainer.BackgroundTransparency = 1
-	local bodyLayout = Instance.new("UIListLayout", bodyContainer)
-	bodyLayout.FillDirection = Enum.FillDirection.Horizontal
-	bodyLayout.Padding = UDim.new(0, 10)
-
-	local tabContainer = Instance.new("Frame", bodyContainer)
-	tabContainer.Name = "TabContainer"
-	tabContainer.Size = UDim2.new(0.3, 0, 1, 0)
-	tabContainer.BackgroundColor3 = config.Theme.Surface
-	Styler.applyCorner(6)(tabContainer)
-	local tabLayout = Instance.new("UIListLayout", tabContainer)
-	tabLayout.Padding = UDim.new(0, 5)
-	local tabPadding = Instance.new("UIPadding", tabContainer)
-	tabPadding.PaddingTop = UDim.new(0, 5)
-
-	local pageContainer = Instance.new("Frame", bodyContainer)
-	pageContainer.Name = "PageContainer"
-	pageContainer.Size = UDim2.new(0.7, -10, 1, 0)
-	pageContainer.BackgroundColor3 = config.Theme.Surface
-	pageContainer.ClipsDescendants = true
-	Styler.applyCorner(6)(pageContainer)
-
-	-- Objeto da janela
-	local Window = {}
-	local tabs = {}
-	local pages = {}
-	local activeTab = nil
-	local firstTab = true
-	
+	local Window = {}; local tabs, pages, panicFunctions = {}, {}, {}; local activeTab, firstTab = nil, true
 	local tweenInfo = TweenInfo.new(config.Animation.Speed, config.Animation.Easing)
 	
 	function Window:Toggle(state)
-		local visible = (state == nil) and not mainFrame.Visible or state
-		mainFrame.Visible = visible
-
-		if blurEffect and config.BlurOnOpen then
-			TweenService:Create(blurEffect, tweenInfo, { Size = visible and 16 or 0 }):Play()
-		end
-		
-		if Camera and config.FOVOnOpen then
-			Window._originalFov = Window._originalFov or Camera.FieldOfView
-			TweenService:Create(Camera, tweenInfo, { FieldOfView = visible and Window._originalFov - 10 or Window._originalFov }):Play()
-		end
+		local visible = (state == nil) and not mainFrame.Visible or state; mainFrame.Visible = visible
+		if blurEffect and config.BlurOnOpen then TweenService:Create(blurEffect, tweenInfo, { Size = visible and 16 or 0 }):Play() end
+		if Camera and config.FOVOnOpen then Window._originalFov = Window._originalFov or Camera.FieldOfView; TweenService:Create(Camera, tweenInfo, { FieldOfView = visible and Window._originalFov - 10 or Window._originalFov }):Play() end
 	end
-
+	function Window:Panic() for _, resetFunc in ipairs(panicFunctions) do task.spawn(resetFunc) end end
+	
 	function Window:AddTab(tabTitle)
-		local tabButton = Instance.new("TextButton", tabContainer)
-		tabButton.Name = tabTitle
-		tabButton.Size = UDim2.new(1, -10, 0, 30)
-		tabButton.AnchorPoint = Vector2.new(0.5, 0)
-		tabButton.Position = UDim2.new(0.5, 0, 0, 0)
-		tabButton.AutoButtonColor = false
-		tabButton.BackgroundTransparency = 1
+		local tabButton = create("TextButton", { Name = tabTitle, Size = UDim2.new(1, -10, 0, 30), AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.new(0.5, 0, 0, 0), AutoButtonColor = false, BackgroundTransparency = 1, Parent = tabContainer })
 		Styler.applyText({ Text = tabTitle, Font = config.Font.Bold, Color = config.Theme.TextSecondary, Size = 15, Align = Enum.TextXAlignment.Center }, config.Theme, config.Font)(tabButton)
-
-		local page = Instance.new("ScrollingFrame", pageContainer)
-		page.Name = tabTitle .. "Page"
-		page.Size = UDim2.new(1, 0, 1, 0)
-		page.BackgroundTransparency = 1
-		page.BorderSizePixel = 0
-		page.Visible = false
-		page.ScrollBarImageColor3 = config.Theme.Primary
-		page.ScrollBarThickness = 4
-		page.AutomaticCanvasSize = Enum.AutomaticSize.Y
-		local pageLayout = Instance.new("UIListLayout", page)
-		pageLayout.Padding = UDim.new(0, 8)
-		local pagePadding = Instance.new("UIPadding", page)
-		pagePadding.PaddingTop = UDim.new(0, 8); pagePadding.PaddingLeft = UDim.new(0, 8); pagePadding.PaddingRight = UDim.new(0, 8); pagePadding.PaddingBottom = UDim.new(0, 8)
-
+		local page = create("ScrollingFrame", { Name = tabTitle .. "Page", Size = UDim2.new(1, 0, 1, 0), BackgroundTransparency = 1, BorderSizePixel = 0, Visible = false, ScrollBarImageColor3 = config.Theme.Primary, ScrollBarThickness = 4, AutomaticCanvasSize = Enum.AutomaticSize.Y, Parent = pageContainer })
+		create("UIListLayout", { Padding = UDim.new(0, 8), Parent = page }); create("UIPadding", { PaddingTop = UDim.new(0, 8), PaddingLeft = UDim.new(0, 8), PaddingRight = UDim.new(0, 8), PaddingBottom = UDim.new(0, 8), Parent = page })
+		
 		tabButton.MouseButton1Click:Connect(function()
 			if activeTab == tabButton then return end
-			if activeTab then
-				pages[activeTab].Visible = false
-				TweenService:Create(activeTab, tweenInfo, { TextColor3 = config.Theme.TextSecondary }):Play()
-			end
-			page.Visible = true
-			activeTab = tabButton
-			TweenService:Create(tabButton, tweenInfo, { TextColor3 = config.Theme.Primary }):Play()
+			if activeTab then pages[activeTab].Visible = false; TweenService:Create(activeTab, tweenInfo, { TextColor3 = config.Theme.TextSecondary }):Play() end
+			page.Visible = true; activeTab = tabButton; TweenService:Create(tabButton, tweenInfo, { TextColor3 = config.Theme.Primary }):Play()
 		end)
-
-		if firstTab then
-			firstTab = false
-			page.Visible = true
-			activeTab = tabButton
-			tabButton.TextColor3 = config.Theme.Primary
-		end
-
-		table.insert(tabs, tabButton)
-		pages[tabButton] = page
+		if firstTab then firstTab = false; page.Visible = true; activeTab = tabButton; tabButton.TextColor3 = config.Theme.Primary end
+		table.insert(tabs, tabButton); pages[tabButton] = page
 		
-		-- Objeto Tab para adicionar componentes
 		local Tab = {}
-		function Tab:AddButton(buttonText, callback) return ComponentFactory.newButton(page, config, buttonText, callback) end
-		function Tab:AddToggle(toggleText, defaultValue, callback) return ComponentFactory.newToggle(page, config, toggleText, defaultValue, callback) end
-        function Tab:AddLabel(labelText) return ComponentFactory.newLabel(page, config, labelText) end
+		local function register(resetFunc) table.insert(panicFunctions, resetFunc) end
+		function Tab:AddLabel(text) return ComponentFactory.new("Label", page, config, { text = text }) end
+		function Tab:AddButton(text, cb) return ComponentFactory.new("Button", page, config, { text = text, callback = cb }) end
+		function Tab:AddToggle(text, def, cb) return ComponentFactory.new("Toggle", page, config, { text = text, default = def, callback = cb, registerForPanic = register }) end
+		function Tab:AddSlider(text, min, max, def, cb, compare) return ComponentFactory.new("Slider", page, config, { text = text, values = { min=min, max=max, default=def }, callback = cb, compare = compare, registerForPanic = register }) end
+		function Tab:AddSelector(text, list, def, cb) return ComponentFactory.new("Selector", page, config, { text = text, list = list, default = def, callback = cb }) end
+		function Tab:AddSeparator() return ComponentFactory.new("Separator", page, config) end
 		return Tab
 	end
 
-	UserInputService.InputBegan:Connect(function(input, gameProcessed)
-		if not gameProcessed and input.KeyCode == config.ToggleKey then
-			Window:Toggle()
-		end
-	end)
-
-	screenGui.Parent = gethui() -- Adiciona a UI ao CoreGui (ou seu equivalente)
+	UserInputService.InputBegan:Connect(function(input, gp) if not gp and input.KeyCode == config.ToggleKey then Window:Toggle() end end)
+	screenGui.Parent = gethui()
 	return Window
 end
 
