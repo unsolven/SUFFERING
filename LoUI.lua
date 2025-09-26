@@ -151,7 +151,7 @@ function Library:CreateWindow(title, size)
     Window.MinimizeBtn.MouseButton1Click:Connect(toggleMinimize)
     Window.RestoreBtn.MouseButton1Click:Connect(toggleMinimize)
     
-    -- Dragging System (from original)
+    -- Dragging System (smooth like original)
     local function clampPosition(frame)
         local screenSize = workspace.CurrentCamera.ViewportSize
         local frameSize = frame.AbsoluteSize
@@ -193,45 +193,45 @@ function Library:CreateWindow(title, size)
     end
     
     -- Main frame dragging
-    Window.MainFrame.InputBegan:Connect(function(input)
+    table.insert(Window.connections, Window.MainFrame.InputBegan:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
             startDrag(input, Window.MainFrame)
         end
-    end)
+    end))
     
-    Window.MainFrame.InputChanged:Connect(function(input)
+    table.insert(Window.connections, Window.MainFrame.InputChanged:Connect(function(input)
         if (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) and dragging then
             updateDrag(input)
         end
-    end)
+    end))
     
     -- Minimized frame dragging
-    Window.MinimizedFrame.InputBegan:Connect(function(input)
+    table.insert(Window.connections, Window.MinimizedFrame.InputBegan:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
             startDrag(input, Window.MinimizedFrame)
         end
-    end)
+    end))
     
-    Window.MinimizedFrame.InputChanged:Connect(function(input)
+    table.insert(Window.connections, Window.MinimizedFrame.InputChanged:Connect(function(input)
         if (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) and dragging then
             updateDrag(input)
         end
-    end)
+    end))
     
-    -- Global input handling
-    UserInputService.InputChanged:Connect(function(input)
+    -- Global input handling for smooth dragging
+    table.insert(Window.connections, UserInputService.InputChanged:Connect(function(input)
         if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
             updateDrag(input)
         end
-    end)
+    end))
     
-    UserInputService.InputEnded:Connect(function(input)
+    table.insert(Window.connections, UserInputService.InputEnded:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
             dragging = false
         end
-    end)
+    end))
     
-    -- Responsive Design
+    -- Responsive Design with smooth clamping
     local function autoResize()
         local screenSize = workspace.CurrentCamera.ViewportSize
         
@@ -256,11 +256,11 @@ function Library:CreateWindow(title, size)
         end
     end
     
-    workspace.CurrentCamera:GetPropertyChangedSignal("ViewportSize"):Connect(function()
+    table.insert(Window.connections, workspace.CurrentCamera:GetPropertyChangedSignal("ViewportSize"):Connect(function()
         autoResize()
         clampPosition(Window.MainFrame)
         clampPosition(Window.MinimizedFrame)
-    end)
+    end))
     
     spawn(function()
         wait(0.1)
