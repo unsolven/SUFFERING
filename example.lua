@@ -1,4 +1,3 @@
--- UI Library (Módulo separado) - VERSÃO CORRIGIDA
 local Library = {}
 
 local Players = game:GetService("Players")
@@ -8,17 +7,18 @@ local CoreGui = game:GetService("CoreGui")
 
 local player = Players.LocalPlayer
 
+--[[ TEMA ROXO CARMESIM ESCURO ]]
 local Theme = {
-    Background = Color3.fromRGB(25, 25, 30),
-    Secondary = Color3.fromRGB(35, 35, 45),
-    Accent = Color3.fromRGB(70, 70, 85),
-    Button = Color3.fromRGB(45, 45, 55),
-    ButtonActive = Color3.fromRGB(50, 50, 60),
-    Text = Color3.fromRGB(220, 220, 220),
-    TextSecondary = Color3.fromRGB(240, 240, 240),
-    Success = Color3.fromRGB(100, 255, 100),
-    Error = Color3.fromRGB(255, 100, 100),
-    ScrollBar = Color3.fromRGB(100, 100, 120)
+    Background = Color3.fromRGB(18, 18, 22),       -- Preto com um tom azulado/roxo escuro
+    Secondary = Color3.fromRGB(28, 28, 35),      -- Um cinza escuro um pouco mais claro
+    Accent = Color3.fromRGB(85, 20, 40),         -- Roxo Carmesim Escuro
+    Button = Color3.fromRGB(40, 40, 50),         -- Cor de botão escura e fria
+    ButtonActive = Color3.fromRGB(50, 50, 60),   -- Cor do botão ao passar o mouse
+    Text = Color3.fromRGB(225, 225, 230),        -- Texto principal (branco suave)
+    TextSecondary = Color3.fromRGB(240, 240, 240), -- Texto secundário
+    Success = Color3.fromRGB(80, 220, 100),      -- Verde para 'ON'
+    Error = Color3.fromRGB(255, 80, 80),         -- Vermelho para 'OFF'
+    ScrollBar = Color3.fromRGB(60, 30, 45)       -- Cor da barra de rolagem baseada no Accent
 }
 
 function Library:CreateWindow(title, size)
@@ -37,10 +37,10 @@ function Library:CreateWindow(title, size)
 
     Window.MainFrame = Instance.new("Frame")
     Window.MainFrame.Name = "MainFrame"
-    Window.MainFrame.Size = size or UDim2.new(0, 280, 0, 300)
-    Window.MainFrame.Position = UDim2.new(0, 10, 0, 10)
+    Window.MainFrame.Size = size or UDim2.new(0, 650, 0, 250)
+    Window.MainFrame.Position = UDim2.new(0.5, -( (size and size.X.Offset) or 325 ), 0.5, -125)
     Window.MainFrame.BackgroundColor3 = Theme.Background
-    Window.MainFrame.BackgroundTransparency = 0.1
+    Window.MainFrame.BackgroundTransparency = 0.1 -- << EFEITO TRANSPARENTE
     Window.MainFrame.BorderSizePixel = 0
     Window.MainFrame.ClipsDescendants = true
     Window.MainFrame.Parent = Window.ScreenGui
@@ -82,32 +82,49 @@ function Library:CreateWindow(title, size)
     minimizeCorner.CornerRadius = UDim.new(0, 4)
     minimizeCorner.Parent = Window.MinimizeBtn
 
-    -- TAB CONTAINER NA HORIZONTAL (igual ao original)
-    Window.TabScrollFrame = Instance.new("ScrollingFrame")
-    Window.TabScrollFrame.Size = UDim2.new(1, -6, 0, 28)
-    Window.TabScrollFrame.Position = UDim2.new(0, 3, 0, 27)
-    Window.TabScrollFrame.BackgroundTransparency = 1
-    Window.TabScrollFrame.BorderSizePixel = 0
-    Window.TabScrollFrame.ScrollBarThickness = 2
-    Window.TabScrollFrame.ScrollBarImageColor3 = Theme.ScrollBar
-    Window.TabScrollFrame.CanvasSize = UDim2.new(0, 280, 0, 0)
-    Window.TabScrollFrame.ScrollingDirection = Enum.ScrollingDirection.X
-    Window.TabScrollFrame.Parent = Window.MainFrame
+    Window.TabContainer = Instance.new("ScrollingFrame")
+    Window.TabContainer.Name = "TabContainer"
+    Window.TabContainer.Size = UDim2.new(0, 100, 1, -24)
+    Window.TabContainer.Position = UDim2.new(0, 0, 0, 24)
+    Window.TabContainer.BackgroundColor3 = Theme.Secondary
+    Window.TabContainer.BackgroundTransparency = 0.5
+    Window.TabContainer.BorderSizePixel = 0
+    Window.TabContainer.ScrollBarThickness = 2
+    Window.TabContainer.ScrollBarImageColor3 = Theme.ScrollBar
+    Window.TabContainer.AutomaticCanvasSize = Enum.AutomaticSize.Y
+    Window.TabContainer.ScrollingDirection = Enum.ScrollingDirection.Y
+    Window.TabContainer.Parent = Window.MainFrame
 
-    local tabLayout = Instance.new("UIListLayout")
-    tabLayout.FillDirection = Enum.FillDirection.Horizontal
-    tabLayout.Padding = UDim.new(0, 2)
-    tabLayout.Parent = Window.TabScrollFrame
+    local TabLayout = Instance.new("UIListLayout")
+    TabLayout.FillDirection = Enum.FillDirection.Vertical
+    TabLayout.Padding = UDim.new(0, 5)
+    TabLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+    TabLayout.Parent = Window.TabContainer
+
+    local TabPadding = Instance.new("UIPadding")
+    TabPadding.PaddingTop = UDim.new(0, 5)
+    TabPadding.Parent = Window.TabContainer
 
     Window.ContentFrame = Instance.new("Frame")
-    Window.ContentFrame.Size = UDim2.new(1, -6, 1, -58)
-    Window.ContentFrame.Position = UDim2.new(0, 3, 0, 55)
+    Window.ContentFrame.Name = "ContentFrame"
+    Window.ContentFrame.Size = UDim2.new(1, -100, 1, -24)
+    Window.ContentFrame.Position = UDim2.new(0, 100, 0, 24)
     Window.ContentFrame.BackgroundTransparency = 1
     Window.ContentFrame.Parent = Window.MainFrame
 
+    Window.FooterBar = Instance.new("Frame")
+    Window.FooterBar.Name = "FooterBar"
+    Window.FooterBar.Size = UDim2.new(1, 0, 0, 10)
+    Window.FooterBar.Position = UDim2.new(0, 0, 1, 0)
+    Window.FooterBar.AnchorPoint = Vector2.new(0, 1)
+    Window.FooterBar.BackgroundColor3 = Theme.Secondary
+    Window.FooterBar.BorderSizePixel = 0
+    Window.FooterBar.ZIndex = 2
+    Window.FooterBar.Parent = Window.MainFrame
+
     Window.MinimizedFrame = Instance.new("Frame")
-    Window.MinimizedFrame.Size = UDim2.new(0, 120, 0, 24)
-    Window.MinimizedFrame.Position = UDim2.new(0, 10, 1, -34)
+    Window.MinimizedFrame.Size = UDim2.new(0, 140, 0, 28)
+    Window.MinimizedFrame.Position = UDim2.new(0, 10, 1, -40)
     Window.MinimizedFrame.BackgroundColor3 = Theme.Secondary
     Window.MinimizedFrame.BackgroundTransparency = 0.1
     Window.MinimizedFrame.BorderSizePixel = 0
@@ -138,101 +155,105 @@ function Library:CreateWindow(title, size)
     Window.RestoreBtn.MouseButton1Click:Connect(toggleMinimize)
 
     local function clampPosition(frame)
-        local screenSize = workspace.CurrentCamera.ViewportSize
+        local cam = workspace.CurrentCamera
+        if not cam then return end
+        local screenSize = cam.ViewportSize
         local frameSize = frame.AbsoluteSize
-        local currentPos = frame.Position
-        local newX = math.max(0, math.min(currentPos.X.Offset, screenSize.X - frameSize.X))
-        local newY = math.max(0, math.min(currentPos.Y.Offset, screenSize.Y - frameSize.Y))
+        local pos = frame.Position
+        local newX = math.max(0, math.min(pos.X.Offset, screenSize.X - frameSize.X))
+        local newY = math.max(0, math.min(pos.Y.Offset, screenSize.Y - frameSize.Y))
         frame.Position = UDim2.new(0, newX, 0, newY)
     end
 
     local dragging = false
     local dragStart, frameStart
+    local activeMoveFrame
 
     local function updateDrag(input)
-        if not dragging then return end
+        if not dragging or not dragStart or not frameStart or not activeMoveFrame then return end
         local delta = input.Position - dragStart
         local newPosition = UDim2.new(0, frameStart.X.Offset + delta.X, 0, frameStart.Y.Offset + delta.Y)
-        
-        if Window.minimized then
-            Window.MinimizedFrame.Position = newPosition
-            clampPosition(Window.MinimizedFrame)
-        else
-            Window.MainFrame.Position = newPosition
-            clampPosition(Window.MainFrame)
-        end
+        activeMoveFrame.Position = newPosition
+        clampPosition(activeMoveFrame)
     end
 
-    local function startDrag(input, frame)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-            dragging = true
-            dragStart = input.Position
-            frameStart = frame.Position
-            
-            local connection
-            connection = input.Changed:Connect(function()
-                if input.UserInputState == Enum.UserInputState.End then
-                    dragging = false
-                    if connection then connection:Disconnect() end
-                end
-            end)
-        end
+    local function startDrag(input, movePart)
+        if input.UserInputType ~= Enum.UserInputType.MouseButton1 and input.UserInputType ~= Enum.UserInputType.Touch then return end
+        dragging = true
+        dragStart = input.Position
+        frameStart = movePart.Position
+        activeMoveFrame = movePart
+
+        local connection
+        connection = input.Changed:Connect(function()
+            if input.UserInputState == Enum.UserInputState.End then
+                dragging = false
+                if connection then connection:Disconnect() end
+            end
+        end)
     end
 
-    Window.MainFrame.InputBegan:Connect(function(input)
-        startDrag(input, Window.MainFrame)
-    end)
+    local function setupGrabber(grabPart, movePart)
+        table.insert(Window.connections, grabPart.InputBegan:Connect(function(input)
+            if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+                startDrag(input, movePart)
+            end
+        end))
+    end
 
-    Window.MainFrame.InputChanged:Connect(function(input)
-        if (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) and dragging then
-            updateDrag(input)
-        end
-    end)
+    setupGrabber(Window.TitleBar, Window.MainFrame)
+    setupGrabber(Window.FooterBar, Window.MainFrame)
+    setupGrabber(Window.MinimizedFrame, Window.MinimizedFrame)
 
-    Window.MinimizedFrame.InputBegan:Connect(function(input)
-        startDrag(input, Window.MinimizedFrame)
-    end)
-
-    Window.MinimizedFrame.InputChanged:Connect(function(input)
-        if (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) and dragging then
-            updateDrag(input)
-        end
-    end)
-
-    UserInputService.InputChanged:Connect(function(input)
+    table.insert(Window.connections, UserInputService.InputChanged:Connect(function(input)
         if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
             updateDrag(input)
         end
-    end)
+    end))
 
-    UserInputService.InputEnded:Connect(function(input)
+    table.insert(Window.connections, UserInputService.InputEnded:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
             dragging = false
         end
-    end)
+    end))
 
     local function autoResize()
-        local screenSize = workspace.CurrentCamera.ViewportSize
-        
-        if screenSize.X < 600 then
-            Window.MainFrame.Size = UDim2.new(0, 260, 0, 280)
-            Window.Title.TextSize = 10
-            Window.MinimizeBtn.TextSize = 9
+        local cam = workspace.CurrentCamera
+        if not cam then return end
+        local screenSize = cam.ViewportSize
+
+        if screenSize.X < 700 then
+            local newWidth = math.min(screenSize.X - 20, 480)
+            local newHeight = math.min(screenSize.Y - 40, 420)
+            Window.MainFrame.Size = UDim2.new(0, newWidth, 0, newHeight)
+            Window.MainFrame.Position = UDim2.new(0.5, -newWidth/2, 0.5, -newHeight/2)
+
+            Window.TabContainer.Size = UDim2.new(0, 90, 1, -24)
+            Window.ContentFrame.Position = UDim2.new(0, 90, 0, 24)
+            Window.ContentFrame.Size = UDim2.new(1, -90, 1, -24)
         else
-            Window.MainFrame.Size = UDim2.new(0, 280, 0, 300)
-            Window.Title.TextSize = 11
-            Window.MinimizeBtn.TextSize = 10
+            local defaultW = (size and size.X.Offset) or 650
+            local defaultH = (size and size.Y.Offset) or 250
+            local newWidth = math.min(screenSize.X - 40, math.max(defaultW, 520))
+            local newHeight = math.min(screenSize.Y - 80, math.max(defaultH, 220))
+
+            Window.MainFrame.Size = UDim2.new(0, newWidth, 0, newHeight)
+            Window.MainFrame.Position = UDim2.new(0.5, -newWidth/2, 0.5, -newHeight/2)
+
+            Window.TabContainer.Size = UDim2.new(0, 100, 1, -24)
+            Window.ContentFrame.Position = UDim2.new(0, 100, 0, 24)
+            Window.ContentFrame.Size = UDim2.new(1, -100, 1, -24)
         end
     end
 
-    workspace.CurrentCamera:GetPropertyChangedSignal("ViewportSize"):Connect(function()
+    table.insert(Window.connections, workspace.CurrentCamera:GetPropertyChangedSignal("ViewportSize"):Connect(function()
         autoResize()
         clampPosition(Window.MainFrame)
         clampPosition(Window.MinimizedFrame)
-    end)
+    end))
 
     task.spawn(function()
-        task.wait(0.1)
+        task.wait(0.05)
         autoResize()
         clampPosition(Window.MainFrame)
     end)
@@ -246,39 +267,38 @@ function Library:CreateWindow(title, size)
         }
 
         Tab.Button = Instance.new("TextButton")
-        Tab.Button.Size = UDim2.new(0, 80, 1, 0)
+        Tab.Button.Size = UDim2.new(1, -10, 0, 30)
         Tab.Button.BackgroundColor3 = tabIndex == 1 and Theme.Accent or Theme.Button
         Tab.Button.BorderSizePixel = 0
         Tab.Button.Text = name
         Tab.Button.TextColor3 = Theme.Text
         Tab.Button.Font = Enum.Font.GothamSemibold
-        Tab.Button.TextSize = 9
-        Tab.Button.Parent = Window.TabScrollFrame
-        
+        Tab.Button.TextSize = 12
+        Tab.Button.Parent = Window.TabContainer
+
         local tabCorner = Instance.new("UICorner")
         tabCorner.CornerRadius = UDim.new(0, 4)
         tabCorner.Parent = Tab.Button
 
-        Tab.Content = Instance.new("Frame")
+        Tab.Content = Instance.new("ScrollingFrame")
         Tab.Content.Size = UDim2.new(1, 0, 1, 0)
         Tab.Content.BackgroundTransparency = 1
+        Tab.Content.BorderSizePixel = 0
+        Tab.Content.ScrollBarThickness = 2
+        Tab.Content.ScrollBarImageColor3 = Theme.ScrollBar
+        Tab.Content.AutomaticCanvasSize = Enum.AutomaticSize.Y
         Tab.Content.Visible = tabIndex == 1
         Tab.Content.Parent = Window.ContentFrame
 
-        Tab.ScrollFrame = Instance.new("ScrollingFrame")
-        Tab.ScrollFrame.Size = UDim2.new(1, 0, 1, 0)
-        Tab.ScrollFrame.BackgroundTransparency = 1
-        Tab.ScrollFrame.BorderSizePixel = 0
-        Tab.ScrollFrame.ScrollBarThickness = 2
-        Tab.ScrollFrame.ScrollBarImageColor3 = Theme.ScrollBar
-        Tab.ScrollFrame.CanvasSize = UDim2.new(0, 0, 0, 150)
-        Tab.ScrollFrame.AutomaticCanvasSize = Enum.AutomaticSize.Y
-        Tab.ScrollFrame.Parent = Tab.Content
+        local ContentLayout = Instance.new("UIListLayout")
+        ContentLayout.Padding = UDim.new(0, 5)
+        ContentLayout.SortOrder = Enum.SortOrder.LayoutOrder
+        ContentLayout.Parent = Tab.Content
 
-        local scrollLayout = Instance.new("UIListLayout")
-        scrollLayout.Padding = UDim.new(0, 3)
-        scrollLayout.SortOrder = Enum.SortOrder.LayoutOrder
-        scrollLayout.Parent = Tab.ScrollFrame
+        local ContentPadding = Instance.new("UIPadding")
+        ContentPadding.PaddingLeft = UDim.new(0, 10)
+        ContentPadding.PaddingRight = UDim.new(0, 10)
+        ContentPadding.Parent = Tab.Content
 
         Tab.Button.MouseButton1Click:Connect(function()
             for i, t in pairs(Window.tabs) do
@@ -295,53 +315,53 @@ function Library:CreateWindow(title, size)
         function Tab:CreateToggle(text, callback, defaultState)
             local Toggle = { enabled = defaultState or false, callback = callback or function() end }
 
-            local toggleFrame = Instance.new("Frame")
-            toggleFrame.Size = UDim2.new(1, -3, 0, 28)
-            toggleFrame.BackgroundColor3 = Color3.fromRGB(50, 50, 60)
-            toggleFrame.BackgroundTransparency = 0.5
-            toggleFrame.BorderSizePixel = 0
-            toggleFrame.Parent = Tab.ScrollFrame
-            
+            local ToggleFrame = Instance.new("Frame")
+            ToggleFrame.Size = UDim2.new(1, 0, 0, 35)
+            ToggleFrame.BackgroundColor3 = Theme.Button
+            ToggleFrame.BackgroundTransparency = 0.5
+            ToggleFrame.BorderSizePixel = 0
+            ToggleFrame.Parent = Tab.Content
+
             local toggleCorner = Instance.new("UICorner")
             toggleCorner.CornerRadius = UDim.new(0, 4)
-            toggleCorner.Parent = toggleFrame
-            
-            local toggleLabel = Instance.new("TextLabel")
-            toggleLabel.Size = UDim2.new(0.7, 0, 1, 0)
-            toggleLabel.Position = UDim2.new(0, 5, 0, 0)
-            toggleLabel.BackgroundTransparency = 1
-            toggleLabel.Text = text
-            toggleLabel.TextColor3 = Theme.TextSecondary
-            toggleLabel.Font = Enum.Font.GothamMedium
-            toggleLabel.TextSize = 10
-            toggleLabel.TextXAlignment = Enum.TextXAlignment.Left
-            toggleLabel.Parent = toggleFrame
-            
-            local toggleButton = Instance.new("TextButton")
-            toggleButton.Size = UDim2.new(0, 35, 0, 18)
-            toggleButton.Position = UDim2.new(1, -40, 0.5, -9)
-            toggleButton.BackgroundColor3 = Toggle.enabled and Color3.fromRGB(70, 90, 70) or Color3.fromRGB(60, 60, 70)
-            toggleButton.BorderSizePixel = 0
-            toggleButton.Text = Toggle.enabled and "ON" or "OFF"
-            toggleButton.TextColor3 = Toggle.enabled and Theme.Success or Theme.Error
-            toggleButton.Font = Enum.Font.GothamBold
-            toggleButton.TextSize = 8
-            toggleButton.Parent = toggleFrame
-            
+            toggleCorner.Parent = ToggleFrame
+
+            local ToggleLabel = Instance.new("TextLabel")
+            ToggleLabel.Size = UDim2.new(0.7, 0, 1, 0)
+            ToggleLabel.Position = UDim2.new(0, 10, 0, 0)
+            ToggleLabel.BackgroundTransparency = 1
+            ToggleLabel.Text = text
+            ToggleLabel.TextColor3 = Theme.TextSecondary
+            ToggleLabel.Font = Enum.Font.GothamMedium
+            ToggleLabel.TextSize = 12
+            ToggleLabel.TextXAlignment = Enum.TextXAlignment.Left
+            ToggleLabel.Parent = ToggleFrame
+
+            local ToggleButton = Instance.new("TextButton")
+            ToggleButton.Size = UDim2.new(0, 35, 0, 18)
+            ToggleButton.Position = UDim2.new(1, -45, 0.5, -9)
+            ToggleButton.BackgroundColor3 = Toggle.enabled and Color3.fromRGB(70, 90, 70) or Color3.fromRGB(60, 60, 70)
+            ToggleButton.BorderSizePixel = 0
+            ToggleButton.Text = Toggle.enabled and "ON" or "OFF"
+            ToggleButton.TextColor3 = Toggle.enabled and Theme.Success or Theme.Error
+            ToggleButton.Font = Enum.Font.GothamBold
+            ToggleButton.TextSize = 8
+            ToggleButton.Parent = ToggleFrame
+
             local buttonCorner = Instance.new("UICorner")
             buttonCorner.CornerRadius = UDim.new(0, 9)
-            buttonCorner.Parent = toggleButton
-            
-            toggleButton.MouseButton1Click:Connect(function()
+            buttonCorner.Parent = ToggleButton
+
+            ToggleButton.MouseButton1Click:Connect(function()
                 Toggle.enabled = not Toggle.enabled
                 if Toggle.enabled then
-                    toggleButton.Text = "ON"
-                    toggleButton.TextColor3 = Theme.Success
-                    toggleButton.BackgroundColor3 = Color3.fromRGB(70, 90, 70)
+                    ToggleButton.Text = "ON"
+                    ToggleButton.TextColor3 = Theme.Success
+                    ToggleButton.BackgroundColor3 = Color3.fromRGB(70, 90, 70)
                 else
-                    toggleButton.Text = "OFF"
-                    toggleButton.TextColor3 = Theme.Error
-                    toggleButton.BackgroundColor3 = Color3.fromRGB(60, 60, 70)
+                    ToggleButton.Text = "OFF"
+                    ToggleButton.TextColor3 = Theme.Error
+                    ToggleButton.BackgroundColor3 = Color3.fromRGB(60, 60, 70)
                 end
                 Toggle.callback(Toggle.enabled)
             end)
@@ -351,46 +371,48 @@ function Library:CreateWindow(title, size)
         end
 
         function Tab:CreateButton(text, callback)
-            local button = Instance.new("TextButton")
-            button.Size = UDim2.new(1, -3, 0, 28)
-            button.BackgroundColor3 = Color3.fromRGB(50, 50, 60)
-            button.BackgroundTransparency = 0.5
-            button.BorderSizePixel = 0
-            button.Text = text
-            button.TextColor3 = Theme.TextSecondary
-            button.Font = Enum.Font.GothamMedium
-            button.TextSize = 10
-            button.Parent = Tab.ScrollFrame
-            
+            local ButtonFrame = Instance.new("TextButton")
+            ButtonFrame.Size = UDim2.new(1, 0, 0, 35)
+            ButtonFrame.BackgroundColor3 = Theme.Button
+            ButtonFrame.BackgroundTransparency = 0.5
+            ButtonFrame.BorderSizePixel = 0
+            ButtonFrame.Text = text
+            ButtonFrame.TextColor3 = Theme.TextSecondary
+            ButtonFrame.Font = Enum.Font.GothamMedium
+            ButtonFrame.TextSize = 12
+            ButtonFrame.Parent = Tab.Content
+
             local buttonCorner = Instance.new("UICorner")
             buttonCorner.CornerRadius = UDim.new(0, 4)
-            buttonCorner.Parent = button
-            
-            button.MouseEnter:Connect(function()
-                button.BackgroundTransparency = 0.3
+            buttonCorner.Parent = ButtonFrame
+
+            ButtonFrame.MouseEnter:Connect(function()
+                ButtonFrame.BackgroundTransparency = 0.3
             end)
-            
-            button.MouseLeave:Connect(function()
-                button.BackgroundTransparency = 0.5
+
+            ButtonFrame.MouseLeave:Connect(function()
+                ButtonFrame.BackgroundTransparency = 0.5
             end)
-            
-            button.MouseButton1Click:Connect(callback)
-            
-            return button
+
+            ButtonFrame.MouseButton1Click:Connect(function()
+                if callback then callback() end
+            end)
+
+            return ButtonFrame
         end
 
         function Tab:CreateLabel(text, visible)
             local Label = Instance.new("TextLabel")
-            Label.Size = UDim2.new(1, -3, 0, 28)
+            Label.Size = UDim2.new(1, 0, 0, 28)
             Label.BackgroundColor3 = Color3.fromRGB(40, 40, 50)
             Label.BackgroundTransparency = 0.5
             Label.BorderSizePixel = 0
             Label.Text = text
             Label.TextColor3 = Theme.TextSecondary
             Label.Font = Enum.Font.GothamMedium
-            Label.TextSize = 10
+            Label.TextSize = 12
             Label.Visible = visible ~= false
-            Label.Parent = Tab.ScrollFrame
+            Label.Parent = Tab.Content
 
             local counterCorner = Instance.new("UICorner")
             counterCorner.CornerRadius = UDim.new(0, 4)
@@ -401,16 +423,6 @@ function Library:CreateWindow(title, size)
 
         table.insert(Window.tabs, Tab)
         return Tab
-    end
-
-    -- Função para trocar de aba (faltava no código anterior)
-    function Window:SwitchTab(tabIndex)
-        for i, tab in ipairs(Window.tabs) do
-            tab.Button.BackgroundColor3 = (i == tabIndex) and Theme.Accent or Theme.Button
-            tab.Content.Visible = (i == tabIndex)
-            tab.active = (i == tabIndex)
-        end
-        Window.currentTab = tabIndex
     end
 
     function Window:Destroy()
