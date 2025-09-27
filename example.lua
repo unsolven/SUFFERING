@@ -1,4 +1,4 @@
--- UI Library (Módulo separado)
+-- UI Library (Módulo separado) - VERSÃO CORRIGIDA
 local Library = {}
 
 local Players = game:GetService("Players")
@@ -82,6 +82,7 @@ function Library:CreateWindow(title, size)
     minimizeCorner.CornerRadius = UDim.new(0, 4)
     minimizeCorner.Parent = Window.MinimizeBtn
 
+    -- TAB CONTAINER NA HORIZONTAL (igual ao original)
     Window.TabScrollFrame = Instance.new("ScrollingFrame")
     Window.TabScrollFrame.Size = UDim2.new(1, -6, 0, 28)
     Window.TabScrollFrame.Position = UDim2.new(0, 3, 0, 27)
@@ -400,6 +401,16 @@ function Library:CreateWindow(title, size)
 
         table.insert(Window.tabs, Tab)
         return Tab
+    end
+
+    -- Função para trocar de aba (faltava no código anterior)
+    function Window:SwitchTab(tabIndex)
+        for i, tab in ipairs(Window.tabs) do
+            tab.Button.BackgroundColor3 = (i == tabIndex) and Theme.Accent or Theme.Button
+            tab.Content.Visible = (i == tabIndex)
+            tab.active = (i == tabIndex)
+        end
+        Window.currentTab = tabIndex
     end
 
     function Window:Destroy()
