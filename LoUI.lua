@@ -42,7 +42,7 @@ function Library:CreateWindow(title, size)
     -- Main Frame (Larger)
     Window.MainFrame = Instance.new("Frame")
     Window.MainFrame.Name = "MainFrame"
-    Window.MainFrame.Size = size or UDim2.new(0, 450, 0, 350)
+    Window.MainFrame.Size = size or UDim2.new(0, 520, 0, 300) -- CHANGED: Wider, original height
     Window.MainFrame.Position = UDim2.new(0, 10, 0, 10)
     Window.MainFrame.BackgroundColor3 = Theme.Background
     Window.MainFrame.BackgroundTransparency = 0.1
@@ -93,7 +93,7 @@ function Library:CreateWindow(title, size)
     -- Tab Container (Vertical)
     Window.TabContainer = Instance.new("ScrollingFrame")
     Window.TabContainer.Name = "TabContainer"
-    Window.TabContainer.Size = UDim2.new(0, 100, 1, -24) -- 100px wide, full height minus titlebar
+    Window.TabContainer.Size = UDim2.new(0, 120, 1, -24) -- CHANGED: Wider tab bar
     Window.TabContainer.Position = UDim2.new(0, 0, 0, 24)
     Window.TabContainer.BackgroundColor3 = Theme.Secondary
     Window.TabContainer.BackgroundTransparency = 0.5
@@ -117,8 +117,8 @@ function Library:CreateWindow(title, size)
     -- Content Frame (Adjusted for vertical tabs)
     Window.ContentFrame = Instance.new("Frame")
     Window.ContentFrame.Name = "ContentFrame"
-    Window.ContentFrame.Size = UDim2.new(1, -100, 1, -24)
-    Window.ContentFrame.Position = UDim2.new(0, 100, 0, 24)
+    Window.ContentFrame.Size = UDim2.new(1, -120, 1, -24) -- CHANGED
+    Window.ContentFrame.Position = UDim2.new(0, 120, 0, 24) -- CHANGED
     Window.ContentFrame.BackgroundTransparency = 1
     Window.ContentFrame.Parent = Window.MainFrame
     
@@ -239,15 +239,15 @@ function Library:CreateWindow(title, size)
             Window.MainFrame.Size = UDim2.new(0, newWidth, 0, newHeight)
             Window.MainFrame.Position = UDim2.new(0.5, -newWidth/2, 0.5, -newHeight/2)
 
-            Window.TabContainer.Size = UDim2.new(0, 80, 1, -24)
-            Window.ContentFrame.Position = UDim2.new(0, 80, 0, 24)
-            Window.ContentFrame.Size = UDim2.new(1, -80, 1, -24)
+            Window.TabContainer.Size = UDim2.new(0, 90, 1, -24) -- CHANGED
+            Window.ContentFrame.Position = UDim2.new(0, 90, 0, 24) -- CHANGED
+            Window.ContentFrame.Size = UDim2.new(1, -90, 1, -24) -- CHANGED
         else
-            Window.MainFrame.Size = size or UDim2.new(0, 450, 0, 350)
+            Window.MainFrame.Size = size or UDim2.new(0, 520, 0, 300) -- CHANGED
 
-            Window.TabContainer.Size = UDim2.new(0, 100, 1, -24)
-            Window.ContentFrame.Position = UDim2.new(0, 100, 0, 24)
-            Window.ContentFrame.Size = UDim2.new(1, -100, 1, -24)
+            Window.TabContainer.Size = UDim2.new(0, 120, 1, -24) -- CHANGED
+            Window.ContentFrame.Position = UDim2.new(0, 120, 0, 24) -- CHANGED
+            Window.ContentFrame.Size = UDim2.new(1, -120, 1, -24) -- CHANGED
         end
     end
     
